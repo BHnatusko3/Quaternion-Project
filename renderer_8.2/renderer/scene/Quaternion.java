@@ -1,0 +1,405 @@
+/*
+Course: CS 42000
+      Name: Bruno Hnatusko III
+      Email: bhnatusk@pnw.edu
+     
+      A class that represents a quaternion.
+*/
+package renderer.scene;
+
+public class Quaternion
+{
+   private double a;
+   private double b;
+   private double c;
+   private double d;
+   
+   //Zero quaternion
+   public Quaternion()
+   {
+      this.a = 0;
+      this.b = 0;
+      this.c = 0;
+      this.d = 0;
+   }
+   
+   //Custom quaternion
+   public Quaternion(double w, double x, double y, double z)
+   {
+      this.a = w;
+      this.b = x;
+      this.c = y;
+      this.d = z;
+   }
+   
+   //Conjugate, where imaginary numbers are negated
+   public Quaternion conjugate()
+   {
+      return new Quaternion(a,-b,-c,-d);
+   }
+   
+   //Sum of two quaternions
+   public static Quaternion add(Quaternion O, Quaternion P)
+   {
+      return new Quaternion(O.a + P.a, O.b + P.b, O.c + P.c, O.d + P.d);
+   }
+   
+   //Sum of this quaternion and another
+   public Quaternion plus(Quaternion other)
+   {
+      return Quaternion.add(this,other);
+   }
+   
+   //Difference between Quaternion O and Quaternion P
+   public static Quaternion subtract(Quaternion O, Quaternion P)
+   {
+      return new Quaternion(O.a - P.a, O.b - P.b, O.c - P.c, O.d - P.d);
+   }
+   
+   //Difference between this Quaternion and another
+   public Quaternion minus(Quaternion other)
+   {
+      return Quaternion.subtract(this,other);
+   }
+   
+   //Product of Quaternions O and P, not commutative
+   public static Quaternion mult(Quaternion O, Quaternion P)
+   {
+      double newA = O.a * P.a - O.b * P.b - O.c * P.c - O.d * P.d;
+      double newB = O.a * P.b + O.b * P.a + O.c * P.d - O.d * P.c;
+      double newC = O.a * P.c - O.b * P.d + O.c * P.a + O.d * P.b; 
+      double newD = O.a * P.d + O.b * P.c - O.c * P.b + O.d * P.a;
+      return new Quaternion (newA, newB, newC, newD);
+   }
+   
+   //Product of this quaternion and another
+   public Quaternion times(Quaternion other)
+   {
+      return Quaternion.mult(this, other);
+   }
+   
+   //Multiply all numbers by one factor
+   public Quaternion scale(double s)
+   {
+      return new Quaternion(a*s,b*s,c*s,d*s);
+   }
+
+   //Return a version of the quaternion with a magnitude of 1
+   public Quaternion unitQuaternion()
+   {
+      double m = this.magnitude();
+      return new Quaternion(a/m, b/m, c/m, d/m);
+   }
+   
+   //Return a conjugate of the quaternion with the reciprocol magnitude
+   public Quaternion inverse()
+   {
+      double m2 = Math.pow(this.magnitude(),2);
+      return new Quaternion(a/m2,-b/m2,-c/m2,-d/m2);
+   }  
+   
+   
+   /*Create a quaternion from a rotation matrix.
+    *This never yields a quaternion with "a" being negative.
+   */   
+   public static Quaternion fromRotationMatrix(Matrix m)
+   {
+      double m11 = m.get(1,1);
+      double m12 = m.get(1,2);
+      double m13 = m.get(1,3);
+      
+      double m21 = m.get(2,1);
+      double m22 = m.get(2,2);
+      double m23 = m.get(2,3);
+      
+      double m31 = m.get(3,1);
+      double m32 = m.get(3,2);
+      double m33 = m.get(3,3);
+    
+      double newA;
+      double newB;
+      double newC;
+      double newD;
+      
+      double t = m11 + m22 + m33;
+      double s;
+      
+      if (t > 0)
+      {
+         System.out.println("Route 1");
+         s = 2.0 * Math.sqrt(t + 1.0);
+         newA = s/4.0;
+         newB = (m32 - m23)/s;
+         newC = (m13 - m31)/s;
+         newD = (m21 - m12)/s;
+      }
+      else if ((m11 > m22) && (m11 > m33))
+      {
+          System.out.println("Route 2");
+         s = 2.0 * Math.sqrt(1.0 + m11 - m22 - m33);
+         newA = (m32 - m23)/s;
+         newB = s/4.0;
+         newC = (m12 + m21)/s;
+         newD = (m13 + m31)/s;
+      }
+      else if (m22 > m33)
+      {
+          System.out.println("Route 3");
+         s = 2.0 * Math.sqrt(1.0 - m11 + m22 - m33);
+         newA = (m13 - m31)/s;
+         newB = (m12 + m21)/s;
+         newC = s/4.0;
+         newD = (m23 + m32)/s;
+      }
+      else
+      {
+          System.out.println("Route 4");
+         s = 2.0 * Math.sqrt(1.0 - m11 - m22 + m33);
+         newA = (m21 - m12)/s;
+         newB = (m13 + m31)/s;
+         newC = (m23 + m32)/s;
+         newD = s/4.0;
+      }
+    
+      return new Quaternion(newA, newB, newC, newD);
+   }
+   
+    /*Create a quaternion from a rotation matrix.
+    *This never yields a quaternion with "a" being negative.
+   */   
+   
+   public static Quaternion fromEulerAnglesXYZ(double x,double y,double z)
+   {
+      
+      double radX = Math.toRadians(x);
+      double radY = Math.toRadians(y);
+      double radZ = Math.toRadians(z);
+      
+      double cX = Math.cos(radX/2);
+      double sX = Math.sin(radX/2);
+      double cY = Math.cos(radY/2);
+      double sY = Math.sin(radY/2);
+      double cZ = Math.cos(radZ/2);
+      double sZ = Math.sin(radZ/2);
+      
+      double newA = cX * cY * cZ + sX * sY * sZ;
+      double newB = sX * cY * cZ - cX * sY * sZ;
+      double newC = sX * cY * sZ + cX * sY * cZ;
+      double newD = cX * cY * sZ - sX * sY * cZ;
+      return new Quaternion(newA, newB, newC, newD);
+   }
+   
+   public static Quaternion rotateX(double x)
+   {
+      
+      double radX = Math.toRadians(x);
+      
+      double cX = Math.cos(radX/2);
+      double sX = Math.sin(radX/2);
+      
+      return new Quaternion(cX, sX, 0, 0);
+   }
+   
+   public static Quaternion rotateY(double y)
+   {
+      
+      double radY = Math.toRadians(y);
+      
+      double cY = Math.cos(radY/2);
+      double sY = Math.sin(radY/2);
+      
+      return new Quaternion(cY, 0, sY, 0);
+   }
+   
+   public static Quaternion rotateZ(double z)
+   {
+
+      double radZ = Math.toRadians(z);
+      
+      double cZ = Math.cos(radZ/2);
+      double sZ = Math.sin(radZ/2);
+      
+      return new Quaternion(cZ, 0, 0, sZ);
+   }
+   
+   //Convert a rotation matrix to a quaternion.
+   public Matrix toRotationMatrix()
+   {
+      double s = Math.pow(this.magnitude(),-2);
+      double twoS = 2*s;
+      
+      double b2 = b*b;
+      double c2 = c*c;
+      double d2 = d*d;
+      
+      double ab = a*b;
+      double ac = a*c;
+      double ad = a*d;
+      double bc = b*c;
+      double bd = b*d;
+      double cd = c*d;
+      
+      //Column Vectors
+      Vector v1 = new Vector(1 - twoS * (c2 + d2), twoS * (bc + ad), twoS * (bd - ac), 0);
+      Vector v2 = new Vector(twoS * (bc - ad), 1 - twoS * (b2 + d2), twoS * (cd + ab), 0);
+      Vector v3 = new Vector(twoS * (bd + ac), twoS * (cd - ab), 1 - twoS * (b2 + c2), 0);
+      Vector v4 = new Vector(0, 0, 0, 1);
+      
+      return Matrix.build(v1,v2,v3,v4);
+   }
+   
+   //Potentially more efficient, but very slightly less accurate.
+   public Matrix toRotationMatrix2()
+   {
+      if (this.magnitude() != 1) {return this.unitQuaternion().toRotationMatrix();}
+      //double s = Math.pow(this.magnitude(),-2);
+      //double twoS = 2*s;
+      
+      double b2 = b*b;
+      double c2 = c*c;
+      double d2 = d*d;
+      
+      double ab = a*b;
+      double ac = a*c;
+      double ad = a*d;
+      double bc = b*c;
+      double bd = b*d;
+      double cd = c*d;
+      
+      //Column Vectors
+      Vector v1 = new Vector(1 - 2 * (c2 + d2), 2 * (bc + ad), 2 * (bd - ac), 0);
+      Vector v2 = new Vector(2 * (bc - ad), 1 - 2 * (b2 + d2), 2 * (cd + ab), 0);
+      Vector v3 = new Vector(2 * (bd + ac), 2 * (cd - ab), 1 - 2 * (b2 + c2), 0);
+      Vector v4 = new Vector(0, 0, 0, 1);
+      
+      return Matrix.build(v1,v2,v3,v4);
+   }
+   
+   //Return the magnitude of a quaternion.
+   public double magnitude()
+   {
+      return (Math.sqrt(a*a + b*b + c*c + d*d));
+   }
+   
+   /* Represents the quaternion in the form
+    * a + bi + cj + dk
+    * Numbers are rounded to 3 decimal places.  
+    */
+   
+   public static double dotProduct(Quaternion O, Quaternion P)
+   {
+      return (O.a * P.a + O.b * P.b + O.c * P.c + O.d * P.d);
+   }
+   
+   public String toString()
+   {
+      String s = "";
+      double[] coefficients = {a,b,c,d};
+      
+      s += equationTerm(a, 0, true);
+      
+      int a = 1;
+      for (a = a; a < 4 && s.length() == 0; a++)
+      {
+         s += equationTerm(coefficients[a],a,true);
+      }
+      for (a = a; a < 4 && s.length() > 0; a++)
+      {
+         s += operatorString(coefficients[a]);
+         s += equationTerm(coefficients[a],a,false);
+      }
+      if (s.length() > 0) {return s;}
+      else {return "0";}
+   }
+   
+   /* Used by the toString function.
+    * Returns a plus, minus, or nothing depending on the number.
+    */ 
+   private String operatorString(double n)
+   {
+      if (n > 0) {return " + ";}
+      else if (n < 0) {return " - ";}
+      else {return "";}
+   }
+   
+   String[] variables = {"","i","j","k"};
+    /* Used by the toString function.
+    * Returns "a", "bi", "cj", "dk", or nothing.
+    */  
+   private String equationTerm(double n, int termNo, boolean showSign)
+   {
+      if (n == 0){return "";}
+      
+      String sign = "";
+      if (n < 0 && showSign) {sign = "-";}    
+             
+      return sign + String.format("%.3f", Math.abs(n)) + variables[termNo];
+   }
+   
+   public double[] toEulerAnglesXYZ()
+   {
+      double x = Math.atan2(2*(a*b + c*d),1-2*(b*b + c*c));
+      double z = Math.atan2(2*(a*d + b*c),1-2*(c*c + d*d));
+     
+      double y = 0;
+      double sinY = 2*(a*c - b*d);
+      if (Math.abs(sinY) >= 1) {y = Math.copySign(Math.PI/2,sinY);}
+      else {y = Math.asin(sinY);}
+      
+      double[] angles = {x,y,z};
+      return angles;
+   }
+   
+   public double[] toEulerAnglesXYZ2()
+   {
+      double x;
+      double y;
+      double z;
+            
+      double test = b*c + a*d;
+      if (test > 0.499) { // singularity at north pole
+         z = 2 * Math.atan2(b,a);
+         y = Math.PI/2;
+         x = 0;
+         
+      }
+      else if (test < -0.499) { // singularity at south pole
+         z = -2 * Math.atan2(b,a);
+         y = - Math.PI/2;
+         x = 0;
+         
+      }
+      else
+      {
+         double a2 = a*a;
+         double b2 = b*b;
+         double c2 = c*c;
+         double d2 = d*d;
+         x = Math.atan2(2*(a*b - c*d),a2 - b2 + c2 - d2);
+         y = Math.asin(2*test);
+         z = Math.atan2(2*(a*c - b*d),a2 + b2 - c2 - d2);
+      }
+      return new double[] {x,y,z};
+   }
+   
+   public double[] toEulerAnglesDegXYZ()
+   {
+      double[] angles = this.toEulerAnglesXYZ();
+      for (int i = 0; i < 3; i++)
+      {
+         angles[i] = Math.toDegrees(angles[i]);
+      }   
+      return angles;
+   }
+   
+   
+   public void normalize()
+   {
+      double m = this.magnitude();
+      if (m == 0) {return;}
+      a = a/m;
+      b = b/m;
+      c = c/m;
+      d = d/m;
+   }
+}

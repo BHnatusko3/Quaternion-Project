@@ -1,0 +1,65 @@
+/*
+Course: CS 42000
+      Name: Bruno Hnatusko III
+      Email: bhnatusk@pnw.edu
+     
+      A class that represents quaternion interpolation.
+*/
+package renderer.scene;
+
+public class Slerp
+{
+   private Quaternion[] qList;
+   
+   
+   public Slerp(Quaternion O, Quaternion P, int steps)
+   {
+      qList = new Quaternion[steps]; 
+      O.normalize();
+      P.normalize();
+      
+      double dot = Quaternion.dotProduct(O,P);
+      if (dot < 0.0f) 
+      {
+         O = O.scale(-1);
+         dot = -dot;
+      }
+      
+      if (dot > 0.9995)
+      {
+         for (int i = 0; i < steps; i++)
+         {
+            double t = (double) i/(steps-1);
+            Quaternion qI = Quaternion.add(O,P.minus(O).scale(t));
+            qI.normalize();
+            qList[i] = qI;
+         }
+         return;
+      }
+      
+      double theta_0 = Math.acos(dot);
+      System.out.println("Theta_0: " + Math.toDegrees(theta_0));
+      double sin_theta_0 = Math.sin(theta_0);
+      
+      for (int i = 0; i < steps; i++)
+      {
+         double t = (double) i/(steps-1);
+         double theta = theta_0 * t;
+         System.out.println("Theta: " + Math.toDegrees(theta));
+         double sin_theta = Math.sin(theta);
+         
+         double s0 = Math.sin(theta_0 - theta)/sin_theta_0;
+         double s1 = sin_theta/sin_theta_0;
+         
+         Quaternion qI = Quaternion.add(O.scale(s0),P.scale(s1));
+         qI.normalize();
+         qList[i] = qI;
+      }    
+   }
+   
+   public Quaternion get(int i)
+   {
+      if (i > 0 && i < qList.length) {return qList[i];}
+      return new Quaternion();
+   }
+}

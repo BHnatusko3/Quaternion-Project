@@ -1,0 +1,13 @@
+public class QuaternionTester
+{
+
+   public static void main(String[] args)
+   {
+      Quaternion q1 = new Quaternion(1,2,3,4);
+      System.out.println(q1.toString());
+   
+   
+   }
+}
+
+
