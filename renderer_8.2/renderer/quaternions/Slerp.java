@@ -5,7 +5,7 @@ Course: CS 42000
      
       A class that represents quaternion interpolation.
 */
-package renderer.scene;
+package renderer.quaternions;
 
 public class Slerp
 {

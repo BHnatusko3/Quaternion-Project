@@ -1,0 +1,113 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CS 45500 - Homework 3</title>
+  <meta name="description" content="CS 45500 homework 5">
+  <meta name="author" content="Roger L. Kraft">
+  <link rel="stylesheet" href="http://math.pnw.edu/~rlkraft/roger-v2.css">
+  <!--[if lt IE 9]>
+    <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+</head>
+
+<body>
+<!--
+<header>
+  <a href="http://math.pnw.edu/~rlkraft/" title="Roger L. Kraft">Roger L. Kraft</a>
+</header>
+ -->
+<nav>
+  <ul class="nav-list" role="navigation">
+    <li><a href="../cs45500.html">CS 45500</a></li>
+    <li><a href="../syllabus.html">Syllabus</a></li>
+    <li><a href="../class.html">Lectures and Readings</a></li>
+    <li><a href="../homework.html">Homework Assignments</a></li>
+  </ul>
+  <ul class="nav-list" role="navigation">
+    <li><a href="http://math.pnw.edu/~rlkraft/roger.html">Roger Kraft</a></li>
+    <li><a href="http://academics.pnw.edu/math-stats-computer-science/">Math & CS Department</a></li>
+    <li><a href="http://academics.pnw.edu/engineering-sciences">College of Engineering & Sciences</a></li>
+    <li><a href="http://www.pnw.edu/">Purdue University Northwest</a></li>
+  </ul>
+</nav>
+
+<section id="Content">
+<h1>
+Programming Assignment 5<br>
+CS 45500<br>
+Computer Graphics<br>
+Fall, 2019
+</h1>
+
+<p>
+This assignment is due Friday, December 13.
+</p>
+
+<p>
+This is an optional, extra credit homework assignment. Your score on this assignment will be added to your scores on the other four assignments and then the total will be divided by four. Your homework grades will be 70% of your course grade and the exam will be the other 30%.
+</p>
+
+<p>
+This assignment makes use of the files contained in this <a href="hw5.zip">zip file</a>.
+</p>
+
+<p>
+This assignment uses model transformations and a hierarchical scene.
+</p>
+
+<p>
+In the zip file there is a folder called <code>demo</code>. In that folder there is a file called <code>hw5_demo.cmd</code>. If you double click on that file you can run a demo of the program you need to write. The program creates a hierarchical scene and lets the user manipulate the models in the scene. The scene has models of the letters P, N, and W grouped into a "PNW". The scene graph looks like this.
+</p>
+<pre>
+               Scene
+              /     \
+             /       \
+       Camera         List&lt;Position&gt;
+                            |
+                            |
+                         Position
+                         /  |    \
+                        /   |     \
+                       /    |      \
+                  Matrix   null    List&lt;Position&gt;
+                                  /       |       \
+                                 /        |        \
+                                /         |         \
+                               /          |          \
+                      Position         Position        Position
+                     /  |  \           /  |  \          /   |  \
+                    /   |   \         /   |   \        /    |   \
+               Matrix   P  empty  Matrix  N  empty  Matrix  W   empty
+</pre>
+<p>
+Notice that there are four matrices in the scene graph, one for each of the three letter models and one matrix that manipulates the whole "PNW" group. The demo program uses the '/' key to cycle through the three letter models and the "PNW group so that the user can manipulate each letter individually or the whole "PNW" group. When a letter model (or the group) is chosen, the key commands should manipulate that chosen model (the model manipulation keys are the keys that translate the model, rotate the model, scale the model, and change the color of the model). Notice that when the "PNW" group is selected, its three sub-models move together and should remember their relative state within the group.
+</p>
+
+<p>
+Use the program <code>PNWBuilder.java</code> from the zip file as your starting point. Start by adding code that creates the above scene graph. Then change the key handler code so that the model manipulation commands affect the chosen model. Your program will need a way to remember the position and orientation of each model. Look at the program <code>InteractiveModels_R7.java</code> (from <a href="http://math.pnw.edu/~rlkraft/cs45500/renderer_8.zip">renderer_8.zip</a>) for hints of how to do this.
+</p>
+
+<p>
+<a href="http://math.pnw.edu/~rlkraft/cs45500/handin.html">Turn in</a> a zip file called <code>CS455Hw5Surname.zip</code> (where <code>Surname</code> is your last name) containing your version of <code>PNWBuilder.java</code>.
+</p>
+
+<p>
+This assignment is due Friday, December 13 (the last day of final exam week).
+</p>
+
+</section>
+
+<footer>
+  <script language="JavaScript" type="text/javascript">
+      document.write("<font size=\"-2\"><i>Last modified on " + document.lastModified + ".<\/i><\/font>");
+  </script>
+  <br>
+  <a href="mailto:rlkraft@pnw.edu"><font size="-2"><i>compliments and criticisms</i></font></a>
+</footer>
+
+</body>
+</html>

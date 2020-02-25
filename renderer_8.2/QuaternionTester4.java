@@ -1,4 +1,5 @@
-package renderer.scene;
+import renderer.quaternions.*;
+import renderer.scene.*;
 import java.util.Arrays;
 public class QuaternionTester4
 {
