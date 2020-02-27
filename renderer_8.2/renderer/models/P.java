@@ -2,6 +2,7 @@
 
 */
 
+package renderer.models;
 import renderer.scene.*;
 
 /**
