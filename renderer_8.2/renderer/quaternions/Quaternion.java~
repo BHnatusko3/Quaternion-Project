@@ -5,7 +5,8 @@ Course: CS 42000
      
       A class that represents a quaternion.
 */
-package renderer.scene;
+package renderer.quaternions;
+import renderer.scene.*;
 
 public class Quaternion
 {

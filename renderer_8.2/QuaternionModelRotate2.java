@@ -313,8 +313,7 @@ public class QuaternionModelRotate2
          rotateLetters(Quaternion.rotateX(-2),4);
       }
       else if ('U' == c)
-      {
-        
+      {       
          rotateLetters(Quaternion.rotateX(2),4);
       }
       else if ('v' == c)
@@ -391,6 +390,7 @@ public class QuaternionModelRotate2
    // Get in one place the code to set up the viewport.
    private void setupViewport()
    {
+      System.out.println("Rendering again.");
       // Render again.
       // Get the size of the FrameBuffer.
       FrameBuffer fb = fbf.fbp.getFrameBuffer();
@@ -449,13 +449,13 @@ public class QuaternionModelRotate2
       rotating = true;
       if (steps > 0)
       {
-         Slerp s = new Slerp(rotation, q.times(rotation),steps);
+         Slerp s = new Slerp(rotation, q.times(rotation), steps);
          
          for (int i = 0; i < steps; i++)
          {
             System.out.println(i);
             System.out.println(s.get(i));
-            rotation = s.get(i);
+            rotation = new Quaternion(s.get(i));
             
             updateLetters();
             
@@ -468,7 +468,7 @@ public class QuaternionModelRotate2
    //Update all the letter positions 
    private void updateLetters()
    {
-      //System.out.println("Updating letters");
+      System.out.println("Updating letters.");
       //Create the matrix of the entire scene.
       Matrix basePosMtx = Matrix.identity();
       System.out.println(rotation);
@@ -482,6 +482,8 @@ public class QuaternionModelRotate2
       scene.getPosition(1).matrix = new Matrix(basePosMtx);
       setupViewport();
    }
+   
+   
    
 
    private static void print_help_message()
@@ -510,45 +512,4 @@ public class QuaternionModelRotate2
       System.out.println("Use the 'h' key to redisplay this help message.");
    }
    
-      //Mouse Listener Inner Class
-   /*
-   class MListener_v0 implements MouseListener
-   {
-      @Override public void mouseExited(MouseEvent e){releaseShapes();}
-      @Override public void mouseEntered(MouseEvent e){}
-      @Override public void mouseReleased(MouseEvent e){releaseShapes();}
-      @Override public void mousePressed(MouseEvent e)
-      {
-         hitShapes();
-         if (debugMode)
-         {
-            System.out.println("Mouse position: " + currentMousePos.getX() + " " + currentMousePos.getY() + " " + currentMousePos.getZ());  
-         }
-      }
-      @Override public void mouseClicked(MouseEvent e){}
-   }
-  
-   //Mouse Motion Listener Inner Class
-   class MMoListener_v0 implements MouseMotionListener
-   {
-      @Override public void mouseMoved(MouseEvent e){updateMousePos(e.getX(),e.getY());}
-      @Override public void mouseDragged(MouseEvent e)
-      {
-         updateMousePos(e.getX(),e.getY());
-         boolean reDraw = false; //Determines if the shapes need to be drawn again.
-         
-         double xDif = currentMousePos.getX() - lastMousePos.getX();
-         double yDif = currentMousePos.getY() - lastMousePos.getY();
-         double zDif = currentMousePos.getZ() - lastMousePos.getZ();
-         
-         //Checks if each shape can be dragged.
-         for (int i = 0; i < scene.modelList.size(); i++)
-         {
-            reDraw = reDraw || draggable[i];
-            if (draggable[i]) {moveShape(i,xDif,yDif,zDif);}
-         }
-         if (reDraw) {Draw();}
-      }
-   }
-   */
 }

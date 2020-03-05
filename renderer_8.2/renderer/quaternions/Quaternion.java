@@ -33,6 +33,14 @@ public class Quaternion
       this.d = z;
    }
    
+   public Quaternion(Quaternion q)
+   {
+      this.a = q.a;
+      this.b = q.b;
+      this.c = q.c;
+      this.d = q.d;
+   }
+   
    //Conjugate, where imaginary numbers are negated
    public Quaternion conjugate()
    {
