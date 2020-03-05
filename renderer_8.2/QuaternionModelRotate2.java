@@ -11,6 +11,7 @@ Course: CS 45500
 import renderer.scene.*;
 import renderer.models.*;
 import renderer.pipeline.*;
+import renderer.quaternions.*;
 import renderer.framebuffer.*;
 import renderer.gui.*;
 
