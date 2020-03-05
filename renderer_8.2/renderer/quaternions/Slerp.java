@@ -33,6 +33,8 @@ public class Slerp
       qList[0] = O;
       qList[steps - 1] = P;
       
+      System.out.println("Quaternion O: " + O);
+      System.out.println("Quaternion P: " + P);
       double dot = Quaternion.dotProduct(O,P);
       //Ensures the path taken is the shorter of the two between the points.
       if (dot < 0.0f) 
@@ -77,7 +79,7 @@ public class Slerp
    
    public Quaternion get(int i)
    {
-      if (i > 0 && i < qList.length) {return qList[i];}
+      if (i >= 0 && i < qList.length) {return qList[i];}
       return new Quaternion();
    }
    

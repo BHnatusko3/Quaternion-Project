@@ -17,11 +17,11 @@ import renderer.gui.*;
 
 import java.awt.Color;
 import java.awt.event.*;
-
+import javafx.geometry.*;
 /**
 
 */
-public class QuaternionModelRotate2 
+public class QuaternionModelRotate3
 {
    private FrameBufferFrame fbf; // The event handlers need
    private Scene scene;          // access to these fields.
@@ -50,20 +50,26 @@ public class QuaternionModelRotate2
 
    private int modelIndex = 0; // 0==PNW, 1==P, 2==N, 3==W
 
-   private boolean rotating = false;
+   //Image size
+   private int imageWidth = 960;
+   private int imageHeight = 960;
+   private int xOffset = 0;
+   private int yOffset = 0;
+   //Mouse position data
+   private Point3D lastMousePos = new Point3D(0,0,0);
+   private Point3D currentMousePos = new Point3D(0,0,0);
 
    /**
       This constructor instantiates the Scene object
       and initializes it with appropriate geometry.
    */
-   public QuaternionModelRotate2()
+   public QuaternionModelRotate3()
    {
       // Define initial dimensions for a FrameBuffer.
-      int width  = 960;
-      int height = 960;
+
 
       // Create a FrameBufferFrame holding a FrameBufferPanel.
-      fbf = new FrameBufferFrame("Renderer 8", width, height);
+      fbf = new FrameBufferFrame("Renderer 8", imageWidth, imageHeight);
 
       // Create (inner) event handler objects
       // for events from the FrameBufferFrame.
@@ -79,8 +85,8 @@ public class QuaternionModelRotate2
       
       fbf.addKeyListener(new KeyHandler());
       fbf.addComponentListener(new ComponentHandler());
-
-
+      fbf.addMouseListener(new MListener_v0());
+      fbf.addMouseMotionListener(new MMoListener_v0());
       // Create the Scene object that we shall render.
       scene = new Scene();
 
@@ -103,7 +109,6 @@ public class QuaternionModelRotate2
                                                yTranslation,
                                                zTranslation);
 
-      
       updateLetters();
    }
 
@@ -114,7 +119,7 @@ public class QuaternionModelRotate2
    @Override public void keyTyped(KeyEvent e)
    {
       //System.out.println( e );
-      if (rotating == true) {return;}
+
       char c = e.getKeyChar();
       if ('h' == c)
       {
@@ -310,31 +315,31 @@ public class QuaternionModelRotate2
       }
       else if ('u' == c)
       {
-         rotateLetters(Quaternion.rotateX(-2),4);
+         rotation = Quaternion.rotateX(-2).times(rotation);
       }
       else if ('U' == c)
       {
         
-         rotateLetters(Quaternion.rotateX(2),4);
+         rotation = Quaternion.rotateX(2).times(rotation);
       }
       else if ('v' == c)
       {
-         rotateLetters(Quaternion.rotateY(-2),4);
+         rotation = Quaternion.rotateY(-2).times(rotation);
       }
       else if ('V' == c)
       {
-         rotateLetters(Quaternion.rotateY(2),4);
+         rotation = Quaternion.rotateY(2).times(rotation);
       }
       else if ('w' == c)
       {
-         rotateLetters(Quaternion.rotateZ(-2),4);
+         rotation = Quaternion.rotateZ(-2).times(rotation);
       }
       else if ('W' == c)
       {
-         rotateLetters(Quaternion.rotateZ(2),4);
+         rotation = Quaternion.rotateZ(2).times(rotation);
       }
-      updateLetters();
       
+      updateLetters();
       //System.out.println("Rotation: " + rotation);
       
       // Set up the camera's view volume.
@@ -443,44 +448,20 @@ public class QuaternionModelRotate2
       );
    }//main()
    
-   
-   private void rotateLetters(Quaternion q, int steps)
-   {
-      rotating = true;
-      if (steps > 0)
-      {
-         Slerp s = new Slerp(rotation, q.times(rotation),steps);
-         
-         for (int i = 0; i < steps; i++)
-         {
-            System.out.println(i);
-            System.out.println(s.get(i));
-            rotation = s.get(i);
-            
-            updateLetters();
-            
-            try {Thread.sleep(1000);} catch (Exception e) {System.out.println(e);}
-         }
-         
-      }
-      rotating = false;
-   }
    //Update all the letter positions 
    private void updateLetters()
    {
       //System.out.println("Updating letters");
       //Create the matrix of the entire scene.
       Matrix basePosMtx = Matrix.identity();
-      System.out.println(rotation);
       basePosMtx.mult(Matrix.translate(
-                                       xTranslation,
-                                       yTranslation,
-                                       zTranslation));
-      
-      basePosMtx.mult(rotation.toRotationMatrix());         
+                                              xTranslation,
+                                              yTranslation,
+                                              zTranslation));
+      basePosMtx.mult(rotation.toRotationMatrix());
       basePosMtx.mult(Matrix.scale(scale));
       scene.getPosition(1).matrix = new Matrix(basePosMtx);
-      setupViewport();
+
    }
    
 
@@ -510,20 +491,29 @@ public class QuaternionModelRotate2
       System.out.println("Use the 'h' key to redisplay this help message.");
    }
    
+   //Update the position of the mouse.
+   public void updateMousePos(double x, double y)
+   {
+      x -= xOffset;
+      y -= yOffset;
+      double aspectRatio = (double) imageWidth / (double) imageHeight;
+      double alphaHalf = Math.atan2(1,1);
+      double pX = (2 * ((x + 0.5) / imageWidth) - 1) * Math.tan(alphaHalf) * aspectRatio;
+      double pY = (1 - 2 * (y + 0.5) / imageHeight) * Math.tan(alphaHalf); 
+      lastMousePos = currentMousePos;
+      currentMousePos = new Point3D(10*pX,10*pY,-10);
+   }
+   
       //Mouse Listener Inner Class
-   /*
+   
    class MListener_v0 implements MouseListener
    {
-      @Override public void mouseExited(MouseEvent e){releaseShapes();}
+      @Override public void mouseExited(MouseEvent e){}
       @Override public void mouseEntered(MouseEvent e){}
-      @Override public void mouseReleased(MouseEvent e){releaseShapes();}
+      @Override public void mouseReleased(MouseEvent e){}
       @Override public void mousePressed(MouseEvent e)
       {
-         hitShapes();
-         if (debugMode)
-         {
-            System.out.println("Mouse position: " + currentMousePos.getX() + " " + currentMousePos.getY() + " " + currentMousePos.getZ());  
-         }
+         updateMousePos(e.getX(),e.getY());
       }
       @Override public void mouseClicked(MouseEvent e){}
    }
@@ -531,24 +521,17 @@ public class QuaternionModelRotate2
    //Mouse Motion Listener Inner Class
    class MMoListener_v0 implements MouseMotionListener
    {
-      @Override public void mouseMoved(MouseEvent e){updateMousePos(e.getX(),e.getY());}
+      @Override public void mouseMoved(MouseEvent e)
+      {
+         
+      //System.out.println(e.getX() + " " + e.getY());
+      }
       @Override public void mouseDragged(MouseEvent e)
       {
          updateMousePos(e.getX(),e.getY());
-         boolean reDraw = false; //Determines if the shapes need to be drawn again.
-         
-         double xDif = currentMousePos.getX() - lastMousePos.getX();
-         double yDif = currentMousePos.getY() - lastMousePos.getY();
-         double zDif = currentMousePos.getZ() - lastMousePos.getZ();
-         
-         //Checks if each shape can be dragged.
-         for (int i = 0; i < scene.modelList.size(); i++)
-         {
-            reDraw = reDraw || draggable[i];
-            if (draggable[i]) {moveShape(i,xDif,yDif,zDif);}
-         }
-         if (reDraw) {Draw();}
+         System.out.println("Dragging");
+         System.out.println(currentMousePos.getX() + " " + lastMousePos.getX());
       }
    }
-   */
+   
 }
