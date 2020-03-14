@@ -52,8 +52,8 @@ public class QuaternionModelRotate2
    
    Slerp currentSlerp;
    
-   int stepMax = 4;
-   int currentStep = stepMax;
+   int stepCount = 4;
+   int currentStep = stepCount;
    
    private boolean rotating = false;
 
@@ -120,7 +120,7 @@ public class QuaternionModelRotate2
          // Implement the ActionListener interface.
          @Override public void actionPerformed(ActionEvent e)
          {
-            if (currentSlerp != null && currentStep < stepMax)
+            if (currentSlerp != null && currentStep < stepCount)
             {
                //rotating = true;
                rotation = currentSlerp.get(currentStep);
@@ -143,7 +143,7 @@ public class QuaternionModelRotate2
          {
             // update the scene
             //System.out.println( e );
-            if (currentStep < stepMax) {return;}
+            if (currentStep < stepCount) {return;}
             char c = e.getKeyChar();
             if ('h' == c)
             {
@@ -339,27 +339,27 @@ public class QuaternionModelRotate2
             }
             else if ('u' == c)
             {
-               rotateLetters(Quaternion.rotateX(-5),4);
+               rotateLetters(Quaternion.rotateX(-5),stepCount);
             }
             else if ('U' == c)
             {       
-               rotateLetters(Quaternion.rotateX(5),4);
+               rotateLetters(Quaternion.rotateX(5),stepCount);
             }
             else if ('v' == c)
             {
-               rotateLetters(Quaternion.rotateY(-5),4);
+               rotateLetters(Quaternion.rotateY(-5),stepCount);
             }
             else if ('V' == c)
             {
-               rotateLetters(Quaternion.rotateY(5),4);
+               rotateLetters(Quaternion.rotateY(5),stepCount);
             }
             else if ('w' == c)
             {
-               rotateLetters(Quaternion.rotateZ(-5),4);
+               rotateLetters(Quaternion.rotateZ(-5),stepCount);
             }
             else if ('W' == c)
             {
-               rotateLetters(Quaternion.rotateZ(5),4);
+               rotateLetters(Quaternion.rotateZ(5),stepCount);
             }
             updateLetters();
             
