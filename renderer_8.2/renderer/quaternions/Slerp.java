@@ -33,8 +33,8 @@ public class Slerp
       qList[0] = O;
       qList[steps - 1] = P;
       
-      System.out.println("Quaternion O: " + O);
-      System.out.println("Quaternion P: " + P);
+      //System.out.println("Quaternion O: " + O);
+      //System.out.println("Quaternion P: " + P);
       double dot = Quaternion.dotProduct(O,P);
       //Ensures the path taken is the shorter of the two between the points.
       if (dot < 0.0f) 
@@ -58,14 +58,14 @@ public class Slerp
       
       //Most cases
       double theta_0 = Math.acos(dot);
-      System.out.println("Theta_0: " + Math.toDegrees(theta_0));
+      //System.out.println("Theta_0: " + Math.toDegrees(theta_0));
       double sin_theta_0 = Math.sin(theta_0);
       
       for (int i = 1; i < steps - 1; i++)
       {
          double t = (double) i/(steps-1);
          double theta = theta_0 * t;
-         System.out.println("Theta: " + Math.toDegrees(theta));
+         //System.out.println("Theta: " + Math.toDegrees(theta));
          double sin_theta = Math.sin(theta);
          
          double s0 = Math.sin(theta_0 - theta)/sin_theta_0;

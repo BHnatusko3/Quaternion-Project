@@ -23,7 +23,7 @@ import java.awt.event.*;
 */
 public class QuaternionModelRotate2 
 {
-   private FrameBufferFrame fbf; // The event handlers need
+   //private FrameBufferFrame fbf; // The event handlers need
    private Scene scene;          // access to these fields.
 
    private double fovy = 90.0;
@@ -49,7 +49,12 @@ public class QuaternionModelRotate2
    private double scale = 1;
 
    private int modelIndex = 0; // 0==PNW, 1==P, 2==N, 3==W
-
+   
+   Slerp currentSlerp;
+   
+   int stepMax = 4;
+   int currentStep = stepMax;
+   
    private boolean rotating = false;
 
    /**
@@ -61,9 +66,10 @@ public class QuaternionModelRotate2
       // Define initial dimensions for a FrameBuffer.
       int width  = 960;
       int height = 960;
+      int fps = 40;
 
       // Create a FrameBufferFrame holding a FrameBufferPanel.
-      fbf = new FrameBufferFrame("Renderer 8", width, height);
+      //fbf = new FrameBufferFrame("Renderer 8", width, height);
 
       // Create (inner) event handler objects
       // for events from the FrameBufferFrame.
@@ -77,8 +83,8 @@ public class QuaternionModelRotate2
       jf.addMouseMotionListener(new MMoListener_v0());
       */
       
-      fbf.addKeyListener(new KeyHandler());
-      fbf.addComponentListener(new ComponentHandler());
+      //fbf.addKeyListener(new KeyHandler());
+      //fbf.addComponentListener(new ComponentHandler());
 
 
       // Create the Scene object that we shall render.
@@ -105,294 +111,351 @@ public class QuaternionModelRotate2
 
       
       updateLetters();
+      
+      // Create an AnimationFrame containing a FrameBuffer
+      // with the given dimensions.
+      @SuppressWarnings("serial")
+      InteractiveFrame app = new AnimationFrame("Renderer 2", width, height, fps)
+      {
+         // Implement the ActionListener interface.
+         @Override public void actionPerformed(ActionEvent e)
+         {
+            if (currentSlerp != null && currentStep < stepMax)
+            {
+               //rotating = true;
+               rotation = currentSlerp.get(currentStep);
+               //System.out.println("current rotation is " + rotation);
+               currentStep++;           
+               //else {rotating = false;}           
+            }
+            updateLetters();
+            // Render again.
+            FrameBuffer fb = this.fbp.getFrameBuffer();
+            fb.clearFB(Color.black);
+            Pipeline.render(scene, fb.vp);
+            fbp.update();
+            repaint();
+         }
+
+         // Implement part of the KeyListener interface.
+         // This can be used to change the frame rate.
+         @Override public void keyTyped(KeyEvent e)
+         {
+            // update the scene
+            //System.out.println( e );
+            if (currentStep < stepMax) {return;}
+            char c = e.getKeyChar();
+            if ('h' == c)
+            {
+               print_help_message();
+               return;
+            }
+            else if ('d' == c)
+            {
+               Pipeline.debug = ! Pipeline.debug;
+               //Clip.debug = ! Clip.debug;
+               //Rasterize.debug = ! Rasterize.debug;
+            }
+            /*
+             else if ('/' == c)
+             {
+             modelIndex = (modelIndex + 1) % 4;
+             if (0 == modelIndex)
+             {
+             currentPosition = null;
+             System.out.println("Working on PNW.");
+             
+             }
+             else if (1 == modelIndex)
+             {
+             System.out.println("Working on P.");
+             currentPosition = scene.getPosition(1);
+             }
+             }
+             */
+            else if ('a' == c)
+            {
+               RasterizeAntialias.doAntialiasing = ! RasterizeAntialias.doAntialiasing;
+               System.out.print("Anti-aliasing is turned ");
+               System.out.println(RasterizeAntialias.doAntialiasing ? "On" : "Off");
+            }
+            else if ('g' == c)
+            {
+               RasterizeAntialias.doGamma = ! RasterizeAntialias.doGamma;
+               System.out.print("Gamma correction is turned ");
+               System.out.println(RasterizeAntialias.doGamma ? "On" : "Off");
+            }
+            else if ('p' == c)
+            {
+               scene.camera.perspective = ! scene.camera.perspective;
+               String p = scene.camera.perspective ? "perspective" : "orthographic";
+               System.out.println("Using " + p + " projection");
+            }
+            else if ('l' == c)
+            {
+               letterbox = ! letterbox;
+               System.out.print("Letter boxing is turned ");
+               System.out.println(letterbox ? "On" : "Off");
+            }
+            else if ('n' == c || 'N' == c)
+            {
+               // Move the camera's near plane.
+               if ('n' == c)
+               {
+                  near -= 0.01;
+               }
+               else
+               {
+                  near += 0.01;
+               }
+            }
+            else if ('r' == c || 'R' == c)
+            {
+               // Change the aspect ratio of the camera's view rectangle.
+               if ('r' == c)
+               {
+                  aspectRatio -= 0.1;
+               }
+               else
+               {
+                  aspectRatio += 0.1;
+               }
+               
+               // Adjust right and left.
+               // (Keep the vertical field-of-view fixed.)
+               right =  top * aspectRatio;
+               left  = -right;
+               System.out.printf("Aspect ratio (of camera's image rectangle) = %.2f\n", aspectRatio);
+            }
+            else if ('o' == c || 'O' == c)
+            {
+               // Change left, right, bottom, and top.
+               // (Keep the aspect ratio fixed.)
+               if ('o' == c)
+               {
+                  left   += 0.1 * aspectRatio;
+                  right  -= 0.1 * aspectRatio;
+                  bottom += 0.1;
+                  top    -= 0.1;
+               }
+               else
+               {
+                  left   -= 0.1 * aspectRatio;
+                  right  += 0.1 * aspectRatio;
+                  bottom -= 0.1;
+                  top    += 0.1;
+               }
+            }
+            else if ('c' == c)
+            {
+               // Change the solid random color of the current model.
+               
+               ModelShading.setRandomColor(scene.getPosition(1).model);
+            }
+            else if ('C' == c)
+            {
+               // Change each color in the current model to a random color.
+               ModelShading.setRandomColors(scene.getPosition(1).model);
+            }
+            else if ('e' == c && e.isAltDown())
+            {
+               // Change the random color of each vertex of the current model.
+               
+               ModelShading.setRandomVertexColors(scene.getPosition(1).model);
+               
+            }
+            else if ('e' == c)
+            {
+               // Change the solid random color of each edge of the current model.
+               
+               ModelShading.setRandomLineSegmentColors(scene.getPosition(1).model);
+               
+            }
+            else if ('E' == c)
+            {
+               // Change the random color of each end of each edge of the current model.
+               
+               ModelShading.setRainbowLineSegmentColors(scene.getPosition(1).model);
+               
+            }
+            else if ('f' == c)
+            {
+               showFBaspectRatio = ! showFBaspectRatio;
+               if (showFBaspectRatio)
+               {
+                  // Get the new size of the FrameBufferPanel.
+                  //int w = fbf.fbp.getWidth();
+                  //int h = fbf.fbp.getHeight();
+                  //System.out.printf("Aspect ratio (of framebuffer) = %.2f\n", (double)w/(double)h);
+               }
+            }
+            else if ('m' == c)
+            {
+               showMatrix = ! showMatrix;
+            }
+            else if ('M' == c)
+            {
+               showCamera = ! showCamera;
+            }
+            else if ('=' == c)
+            {
+               xTranslation = 0.0;
+               yTranslation = 0.0;
+               zTranslation = distanceToCamera;
+               rotation = new Quaternion(1,0,0,0);
+               scale = 1.0;
+            }
+            else if ('s' == c) // Scale the model 10% smaller.
+            {
+               scale /= 1.1;
+            }
+            else if ('S' == c) // Scale the model 10% larger.
+            {
+               scale *= 1.1;
+            }
+            else if ('x' == c)
+            {
+               xTranslation -= 0.1;
+            }
+            else if ('X' == c)
+            {
+               xTranslation += 0.1;
+            }
+            else if ('y' == c)
+            {
+               yTranslation -= 0.1;
+            }
+            else if ('Y' == c)
+            {
+               yTranslation += 0.1;
+            }
+            else if ('z' == c)
+            {
+               zTranslation -= 0.1;
+            }
+            else if ('Z' == c)
+            {
+               zTranslation += 0.1;
+            }
+            else if ('u' == c)
+            {
+               rotateLetters(Quaternion.rotateX(-5),4);
+            }
+            else if ('U' == c)
+            {       
+               rotateLetters(Quaternion.rotateX(5),4);
+            }
+            else if ('v' == c)
+            {
+               rotateLetters(Quaternion.rotateY(-5),4);
+            }
+            else if ('V' == c)
+            {
+               rotateLetters(Quaternion.rotateY(5),4);
+            }
+            else if ('w' == c)
+            {
+               rotateLetters(Quaternion.rotateZ(-5),4);
+            }
+            else if ('W' == c)
+            {
+               rotateLetters(Quaternion.rotateZ(5),4);
+            }
+            updateLetters();
+            
+            //System.out.println("Rotation: " + rotation);
+            
+            // Set up the camera's view volume.
+            if (scene.camera.perspective)
+            {
+               scene.camera.projPerspective(left, right, bottom, top, near);
+            }
+            else
+            {
+               scene.camera.projOrtho(left, right, bottom, top);
+            }
+            
+            if (showCamera && ('M'==c
+                                  ||'n'==c||'N'==c||'o'==c||'O'==c||'r'==c||'R'==c||'p'==c))
+            {
+               System.out.print( scene.camera );
+            }
+            
+            if (showMatrix && ('m'==c||'/'==c||'?'==c||'='==c
+                                  ||'s'==c||'x'==c||'y'==c||'z'==c||'u'==c||'v'==c||'w'==c
+                                  ||'S'==c||'X'==c||'Y'==c||'Z'==c||'U'==c||'V'==c||'W'==c))
+            {
+               //System.out.println("rot = " + rotation);
+               
+            }
+            
+            // Render again.
+            setupViewport();
+         }
+         
+         // Implement part of the ComponentListener interface.
+         @Override public void componentResized(ComponentEvent e)
+         {
+            //System.out.println( e );
+            
+            // Get the new size of the FrameBufferPanel.
+            int w = this.fbp.getWidth();
+            int h = this.fbp.getHeight();
+            
+            // Create a new FrameBuffer that fits the new window size.
+            FrameBuffer fb = new FrameBuffer(w, h);
+            this.fbp.setFrameBuffer(fb);
+            fb.clearFB(Color.black);
+            Pipeline.render(scene, fb.vp);
+            fbp.update();
+            repaint();
+         }
+      };
+      
    }
-
-
-
+   
+   
+   
    // Define an inner KeyListener class.
    class KeyHandler extends KeyAdapter {
-   @Override public void keyTyped(KeyEvent e)
-   {
-      //System.out.println( e );
-      if (rotating == true) {return;}
-      char c = e.getKeyChar();
-      if ('h' == c)
+      @Override public void keyTyped(KeyEvent e)
       {
-         print_help_message();
-         return;
-      }
-      else if ('d' == c)
-      {
-         Pipeline.debug = ! Pipeline.debug;
-       //Clip.debug = ! Clip.debug;
-       //Rasterize.debug = ! Rasterize.debug;
-      }
-      /*
-      else if ('/' == c)
-      {
-         modelIndex = (modelIndex + 1) % 4;
-         if (0 == modelIndex)
-         {
-            currentPosition = null;
-            System.out.println("Working on PNW.");
-
-         }
-         else if (1 == modelIndex)
-         {
-            System.out.println("Working on P.");
-            currentPosition = scene.getPosition(1);
-         }
-      }
-      */
-      else if ('a' == c)
-      {
-         RasterizeAntialias.doAntialiasing = ! RasterizeAntialias.doAntialiasing;
-         System.out.print("Anti-aliasing is turned ");
-         System.out.println(RasterizeAntialias.doAntialiasing ? "On" : "Off");
-      }
-      else if ('g' == c)
-      {
-         RasterizeAntialias.doGamma = ! RasterizeAntialias.doGamma;
-         System.out.print("Gamma correction is turned ");
-         System.out.println(RasterizeAntialias.doGamma ? "On" : "Off");
-      }
-      else if ('p' == c)
-      {
-         scene.camera.perspective = ! scene.camera.perspective;
-         String p = scene.camera.perspective ? "perspective" : "orthographic";
-         System.out.println("Using " + p + " projection");
-      }
-      else if ('l' == c)
-      {
-         letterbox = ! letterbox;
-         System.out.print("Letter boxing is turned ");
-         System.out.println(letterbox ? "On" : "Off");
-      }
-      else if ('n' == c || 'N' == c)
-      {
-         // Move the camera's near plane.
-         if ('n' == c)
-         {
-            near -= 0.01;
-         }
-         else
-         {
-            near += 0.01;
-         }
-      }
-      else if ('r' == c || 'R' == c)
-      {
-         // Change the aspect ratio of the camera's view rectangle.
-         if ('r' == c)
-         {
-            aspectRatio -= 0.1;
-         }
-         else
-         {
-            aspectRatio += 0.1;
-         }
-
-         // Adjust right and left.
-         // (Keep the vertical field-of-view fixed.)
-         right =  top * aspectRatio;
-         left  = -right;
-         System.out.printf("Aspect ratio (of camera's image rectangle) = %.2f\n", aspectRatio);
-      }
-      else if ('o' == c || 'O' == c)
-      {
-         // Change left, right, bottom, and top.
-         // (Keep the aspect ratio fixed.)
-         if ('o' == c)
-         {
-            left   += 0.1 * aspectRatio;
-            right  -= 0.1 * aspectRatio;
-            bottom += 0.1;
-            top    -= 0.1;
-         }
-         else
-         {
-            left   -= 0.1 * aspectRatio;
-            right  += 0.1 * aspectRatio;
-            bottom -= 0.1;
-            top    += 0.1;
-         }
-      }
-      else if ('c' == c)
-      {
-         // Change the solid random color of the current model.
-
-            ModelShading.setRandomColor(scene.getPosition(1).model);
-      }
-      else if ('C' == c)
-      {
-         // Change each color in the current model to a random color.
-          ModelShading.setRandomColors(scene.getPosition(1).model);
-      }
-      else if ('e' == c && e.isAltDown())
-      {
-         // Change the random color of each vertex of the current model.
-
-         ModelShading.setRandomVertexColors(scene.getPosition(1).model);
- 
-      }
-      else if ('e' == c)
-      {
-         // Change the solid random color of each edge of the current model.
-
-            ModelShading.setRandomLineSegmentColors(scene.getPosition(1).model);
-
-      }
-      else if ('E' == c)
-      {
-         // Change the random color of each end of each edge of the current model.
-
-            ModelShading.setRainbowLineSegmentColors(scene.getPosition(1).model);
- 
-      }
-      else if ('f' == c)
-      {
-         showFBaspectRatio = ! showFBaspectRatio;
-         if (showFBaspectRatio)
-         {
-            // Get the new size of the FrameBufferPanel.
-            int w = fbf.fbp.getWidth();
-            int h = fbf.fbp.getHeight();
-            System.out.printf("Aspect ratio (of framebuffer) = %.2f\n", (double)w/(double)h);
-         }
-      }
-      else if ('m' == c)
-      {
-         showMatrix = ! showMatrix;
-      }
-      else if ('M' == c)
-      {
-         showCamera = ! showCamera;
-      }
-      else if ('=' == c)
-      {
-         xTranslation = 0.0;
-         yTranslation = 0.0;
-         zTranslation = distanceToCamera;
-         rotation = new Quaternion(1,0,0,0);
-         scale = 1.0;
-      }
-      else if ('s' == c) // Scale the model 10% smaller.
-      {
-         scale /= 1.1;
-      }
-      else if ('S' == c) // Scale the model 10% larger.
-      {
-         scale *= 1.1;
-      }
-      else if ('x' == c)
-      {
-         xTranslation -= 0.1;
-      }
-      else if ('X' == c)
-      {
-         xTranslation += 0.1;
-      }
-      else if ('y' == c)
-      {
-         yTranslation -= 0.1;
-      }
-      else if ('Y' == c)
-      {
-         yTranslation += 0.1;
-      }
-      else if ('z' == c)
-      {
-         zTranslation -= 0.1;
-      }
-      else if ('Z' == c)
-      {
-         zTranslation += 0.1;
-      }
-      else if ('u' == c)
-      {
-         rotateLetters(Quaternion.rotateX(-2),4);
-      }
-      else if ('U' == c)
-      {       
-         rotateLetters(Quaternion.rotateX(2),4);
-      }
-      else if ('v' == c)
-      {
-         rotateLetters(Quaternion.rotateY(-2),4);
-      }
-      else if ('V' == c)
-      {
-         rotateLetters(Quaternion.rotateY(2),4);
-      }
-      else if ('w' == c)
-      {
-         rotateLetters(Quaternion.rotateZ(-2),4);
-      }
-      else if ('W' == c)
-      {
-         rotateLetters(Quaternion.rotateZ(2),4);
-      }
-      updateLetters();
-      
-      //System.out.println("Rotation: " + rotation);
-      
-      // Set up the camera's view volume.
-      if (scene.camera.perspective)
-      {
-         scene.camera.projPerspective(left, right, bottom, top, near);
-      }
-      else
-      {
-         scene.camera.projOrtho(left, right, bottom, top);
-      }
-
-      if (showCamera && ('M'==c
-           ||'n'==c||'N'==c||'o'==c||'O'==c||'r'==c||'R'==c||'p'==c))
-      {
-         System.out.print( scene.camera );
-      }
-
-      if (showMatrix && ('m'==c||'/'==c||'?'==c||'='==c
-           ||'s'==c||'x'==c||'y'==c||'z'==c||'u'==c||'v'==c||'w'==c
-           ||'S'==c||'X'==c||'Y'==c||'Z'==c||'U'==c||'V'==c||'W'==c))
-      {
-         System.out.println("rot = " + rotation);
          
-      }
-
-      // Render again.
-      setupViewport();
-   }}
-
-
+      }}
+   
+   
    // Define an inner ComponentListener class.
    class ComponentHandler extends ComponentAdapter {
-   @Override public void componentResized(ComponentEvent e)
-   {
-      //System.out.println( e );
-
-      // Get the new size of the FrameBufferPanel.
-      int w = fbf.fbp.getWidth();
-      int h = fbf.fbp.getHeight();
-
-      // Create a new FrameBuffer that fits the new window size.
-      FrameBuffer fb = new FrameBuffer(w, h);
-      fbf.fbp.setFrameBuffer(fb);
-
-      if (showFBaspectRatio)
-         System.out.printf("Aspect ratio (of framebuffer) = %.2f\n", (double)w/(double)h);
-
-      // Render again.
-      setupViewport();
-   }}
-
-
+      @Override public void componentResized(ComponentEvent e)
+      {
+         //System.out.println( e );
+         
+         // Get the new size of the FrameBufferPanel.
+         //int w = fbf.fbp.getWidth();
+         //int h = fbf.fbp.getHeight();
+         
+         // Create a new FrameBuffer that fits the new window size.
+         //FrameBuffer fb = new FrameBuffer(w, h);
+         //fbf.fbp.setFrameBuffer(fb);
+         
+         //if (showFBaspectRatio)
+            //System.out.printf("Aspect ratio (of framebuffer) = %.2f\n", (double)w/(double)h);
+         
+         // Render again.
+         //setupViewport();
+      }}
+   
+   
    // Get in one place the code to set up the viewport.
+   
+   
    private void setupViewport()
    {
-      System.out.println("Rendering again.");
+      //System.out.println("Rendering again.");
       // Render again.
       // Get the size of the FrameBuffer.
+      
+      /*
       FrameBuffer fb = fbf.fbp.getFrameBuffer();
       int w = fb.width;
       int h = fb.height;
@@ -422,56 +485,47 @@ public class QuaternionModelRotate2
       Pipeline.render(scene, fb.vp);
       fbf.fbp.update();
       fbf.repaint();
+      */
    }
-
-
+   
+   
    /**
-      Create an instance of this class which has
-      the affect of creating the GUI application.
-   */
+    Create an instance of this class which has
+    the affect of creating the GUI application.
+    */
    public static void main(String[] args)
    {
       print_help_message();
-
+      
       // We need to call the program's constructor in the
       // Java GUI Event Dispatch Thread, otherwise we get a
       // race condition between the constructor (running in
       // the main() thread) and the very first ComponentEvent
       // (running in the EDT).
       javax.swing.SwingUtilities.invokeLater(
-         () -> {new QuaternionModelRotate2();}
+                                             () -> {new QuaternionModelRotate2();}
       );
    }//main()
    
    
    private void rotateLetters(Quaternion q, int steps)
    {
-      rotating = true;
+     
       if (steps > 0)
       {
          Slerp s = new Slerp(rotation, q.times(rotation), steps);
-         
-         for (int i = 0; i < steps; i++)
-         {
-            System.out.println(i);
-            System.out.println(s.get(i));
-            rotation = new Quaternion(s.get(i));
-            
-            updateLetters();
-            
-            try {Thread.sleep(1000);} catch (Exception e) {System.out.println(e);}
-         }
-         
+         currentSlerp = s;
+         currentStep = 1;    
       }
-      rotating = false;
+ 
    }
    //Update all the letter positions 
    private void updateLetters()
    {
-      System.out.println("Updating letters.");
+      //System.out.println("Updating letters.");
       //Create the matrix of the entire scene.
       Matrix basePosMtx = Matrix.identity();
-      System.out.println(rotation);
+      //System.out.println(rotation);
       basePosMtx.mult(Matrix.translate(
                                        xTranslation,
                                        yTranslation,
@@ -485,7 +539,7 @@ public class QuaternionModelRotate2
    
    
    
-
+   
    private static void print_help_message()
    {
       System.out.println("Use the 'd' key to toggle debugging information on and off.");
@@ -496,7 +550,7 @@ public class QuaternionModelRotate2
       System.out.println("Use the s/S keys to scale the size of a model.");
       System.out.println("Use the 'c' key to change a model's random solid color.");
       System.out.println("Use the 'C' key to randomly change a model's colors.");
-    //System.out.println("Use the 'e' key to change the random vertex colors.");
+      //System.out.println("Use the 'e' key to change the random vertex colors.");
       System.out.println("Use the 'e' key to change the random solid edge colors.");
       System.out.println("Use the 'E' key to change the random edge colors.");
       System.out.println("Use the 'a' key to toggle antialiasing on and off.");
