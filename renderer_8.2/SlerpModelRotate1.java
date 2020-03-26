@@ -569,8 +569,6 @@ public class SlerpModelRotate1
      
       x -= xOffset;
       y -= yOffset;
-       System.out.println("Y is " + y);
-        System.out.println("X is " + x);
       //double aspectRatio = (double) width / (double) height;
       //double alphaHalf = Math.atan2(1,1);
       //double pX = (2 * ((x + 0.5) / width) - 1) * Math.tan(alphaHalf) * aspectRatio;
@@ -631,9 +629,7 @@ public class SlerpModelRotate1
       setupViewport();
    }
    
-   
-   
-   
+ 
    private static void print_help_message()
    {
       System.out.println("Use the 'd' key to toggle debugging information on and off.");
