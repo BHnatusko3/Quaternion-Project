@@ -66,8 +66,8 @@ public class SlerpModelRotate1
    private boolean rotating = false;
    
    // Define initial dimensions for a FrameBuffer.
-   public int width  = 960;
-   public int height = 960;
+   public int width  = 600;
+   public int height = 600;
    public int fps = 60;
    
    private int yOffset = 31; //Without taking this into account, the top pixel is at y = 31. 
@@ -162,7 +162,7 @@ public class SlerpModelRotate1
          @Override public void mouseReleased(MouseEvent e)
          {
            mouseState = 0;
-            System.out.println("Mouse State is " + mouseState);
+           System.out.println("Mouse State is " + mouseState);
          }
          @Override public void mousePressed(MouseEvent e)
          {
@@ -171,11 +171,7 @@ public class SlerpModelRotate1
              
            System.out.println("Mouse State is " + mouseState);
            updateMousePos(e.getX(),e.getY());        
-           
-           
-           //updateLetters();
-           //setupViewport();
-           //updateMousePos(e.getX(),e.getY());
+           System.out.println(e.getY() + " " + currentMousePos.getY());
          }
          @Override public void mouseClicked(MouseEvent e){}
          @Override public void mouseDragged(MouseEvent e)
@@ -184,6 +180,7 @@ public class SlerpModelRotate1
            updateMousePos(e.getX(),e.getY());
            //System.out.println("Last mouse pos: " + lastMousePos);
            if (mouseState == 1) {rotateXY();}  
+           else if (mouseState == 2) {rotateZ();}
          }
          
          @Override public void keyTyped(KeyEvent e)
@@ -569,12 +566,18 @@ public class SlerpModelRotate1
    
    private void updateMousePos(double x, double y)
    {
+     
       x -= xOffset;
       y -= yOffset;
-      double aspectRatio = (double) width / (double) height;
-      double alphaHalf = Math.atan2(1,1);
-      double pX = (2 * ((x + 0.5) / width) - 1) * Math.tan(alphaHalf) * aspectRatio;
-      double pY = (1 - 2 * (y + 0.5) / height) * Math.tan(alphaHalf); 
+       System.out.println("Y is " + y);
+        System.out.println("X is " + x);
+      //double aspectRatio = (double) width / (double) height;
+      //double alphaHalf = Math.atan2(1,1);
+      //double pX = (2 * ((x + 0.5) / width) - 1) * Math.tan(alphaHalf) * aspectRatio;
+      //double pY = (1 - 2 * (y + 0.5) / height) * Math.tan(alphaHalf); 
+      double pX = 2 * (x/width - 0.5); 
+      double pY = 2 * (0.5 - y/(height  )); 
+     
       lastMousePos = currentMousePos;
       currentMousePos = new Point2D.Double(pX,pY);
    }
@@ -592,8 +595,22 @@ public class SlerpModelRotate1
      //System.out.println("xDeg: " + xDeg + " yDeg: " + yDeg);
      //System.out.println(frames);
      
-     rotateLetters(Quaternion.rotateY(yDeg).times(Quaternion.rotateX(xDeg)),frames);
+     rotateLetters(Quaternion.rotateY(yDeg).times(Quaternion.rotateX(xDeg)),frames);   
+   }
+   
+   private void rotateZ()
+   {
+     if (rotating == true){return;}
+     double ang1 = Math.atan2(lastMousePos.getY(),lastMousePos.getX());
+     double ang2 = Math.atan2(currentMousePos.getY(),currentMousePos.getX());
+       
+     double angDif = 4 * Math.toDegrees(ang2 - ang1);
+    
+     int frames = 2 + (int) angDif/90;
+     //System.out.println("xDeg: " + xDeg + " yDeg: " + yDeg);
+     //System.out.println(frames);
      
+     rotateLetters(Quaternion.rotateZ(angDif),frames);        
    }
    
    //Update all the letter positions 
