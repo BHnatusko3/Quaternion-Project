@@ -18,7 +18,8 @@ import renderer.gui.*;
 import java.awt.Color;
 import java.awt.event.*;
 import javax.swing.SwingUtilities;
-import java.awt.geom.Point2D;
+//import java.awt.geom.Point2D;
+import javafx.geometry.*;
 /**
 
 */
@@ -56,11 +57,17 @@ public class SlerpModelRotate1
    int stepCount = 4;
    int currentStep = stepCount;
    
-   Point2D mouseLast = null;
-   Point2D mouseCurrent = null;
+   private Point3D lastMousePos = new Point3D(0,0,0);
+   private Point3D currentMousePos = new Point3D(0,0,0);
+   
    private int mouseState = 0;
    
    private boolean rotating = false;
+   
+   // Define initial dimensions for a FrameBuffer.
+   public int width  = 960;
+   public int height = 960;
+   public int fps = 40;
 
    /**
       This constructor instantiates the Scene object
@@ -68,10 +75,7 @@ public class SlerpModelRotate1
    */
    public SlerpModelRotate1()
    {
-      // Define initial dimensions for a FrameBuffer.
-      int width  = 960;
-      int height = 960;
-      int fps = 40;
+
 
       // Create a FrameBufferFrame holding a FrameBufferPanel.
       //fbf = new FrameBufferFrame("Renderer 8", width, height);
@@ -159,14 +163,19 @@ public class SlerpModelRotate1
            else if (SwingUtilities.isRightMouseButton(e)) {mouseState = 2;}
              
            System.out.println("Mouse State is " + mouseState);
-           updateMousePos(null);
+           updateMousePos(e.getX(),e.getY());
                        
            updateLetters();
            setupViewport();
            //updateMousePos(e.getX(),e.getY());
          }
          @Override public void mouseClicked(MouseEvent e){}
-         @Override public void mouseDragged(MouseEvent e){}
+         @Override public void mouseDragged(MouseEvent e)
+         {
+           if (mouseState == 0){return;}
+           updateMousePos(e.getX(),e.getY());
+           System.out.println("Last mouse pos: " + lastMousePos);
+         }
          
          @Override public void keyTyped(KeyEvent e)
          {
@@ -549,11 +558,18 @@ public class SlerpModelRotate1
  
    }
    
-   private void updateMousePos(Point2D p)
+   private void updateMousePos(double x, double y)
    {
-     mouseLast = mouseCurrent;
-     mouseCurrent = p;
+      //x -= xOffset;
+      //y -= yOffset;
+      double aspectRatio = (double) width / (double) height;
+      double alphaHalf = Math.atan2(1,1);
+      double pX = (2 * ((x + 0.5) / width) - 1) * Math.tan(alphaHalf) * aspectRatio;
+      double pY = (1 - 2 * (y + 0.5) / height) * Math.tan(alphaHalf); 
+      lastMousePos = currentMousePos;
+      currentMousePos = new Point3D(10*pX,10*pY,-10);
    }
+   
    //Update all the letter positions 
    private void updateLetters()
    {

@@ -513,7 +513,7 @@ public class QuaternionModelRotate3
       @Override public void mouseReleased(MouseEvent e){}
       @Override public void mousePressed(MouseEvent e)
       {
-         updateMousePos(e.getX(),e.getY());
+        updateMousePos(e.getX(),e.getY());
       }
       @Override public void mouseClicked(MouseEvent e){}
    }
