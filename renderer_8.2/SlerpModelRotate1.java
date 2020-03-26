@@ -18,8 +18,9 @@ import renderer.gui.*;
 import java.awt.Color;
 import java.awt.event.*;
 import javax.swing.SwingUtilities;
-//import java.awt.geom.Point2D;
-import javafx.geometry.*;
+import java.awt.geom.Point2D;
+import java.awt.Point;
+//import javafx.geometry.*;
 /**
 
 */
@@ -57,8 +58,8 @@ public class SlerpModelRotate1
    int stepCount = 4;
    int currentStep = stepCount;
    
-   private Point3D lastMousePos = new Point3D(0,0,0);
-   private Point3D currentMousePos = new Point3D(0,0,0);
+   private Point2D lastMousePos = new Point2D.Double(0,0);
+   private Point2D currentMousePos = new Point2D.Double(0,0);
    
    private int mouseState = 0;
    
@@ -67,7 +68,11 @@ public class SlerpModelRotate1
    // Define initial dimensions for a FrameBuffer.
    public int width  = 960;
    public int height = 960;
-   public int fps = 40;
+   public int fps = 60;
+   
+   private int yOffset = 31; //Without taking this into account, the top pixel is at y = 31. 
+   private int xOffset = 8; //Without taking this into account, the leftmost pixel is at x = 8.
+    
 
    /**
       This constructor instantiates the Scene object
@@ -75,7 +80,7 @@ public class SlerpModelRotate1
    */
    public SlerpModelRotate1()
    {
-
+    
 
       // Create a FrameBufferFrame holding a FrameBufferPanel.
       //fbf = new FrameBufferFrame("Renderer 8", width, height);
@@ -129,14 +134,16 @@ public class SlerpModelRotate1
          // Implement the ActionListener interface.
          @Override public void actionPerformed(ActionEvent e)
          {
-            if (currentSlerp != null && currentStep < stepCount)
+            if (currentSlerp != null && currentStep < currentSlerp.getSteps())
             {
-               //rotating = true;
+               rotating = true;
                rotation = currentSlerp.get(currentStep);
                //System.out.println("current rotation is " + rotation);
                currentStep++;           
-               //else {rotating = false;}           
+                          
             }
+            else {rotating = false;}
+   
             updateLetters();
             // Render again.
             FrameBuffer fb = this.fbp.getFrameBuffer();
@@ -163,10 +170,11 @@ public class SlerpModelRotate1
            else if (SwingUtilities.isRightMouseButton(e)) {mouseState = 2;}
              
            System.out.println("Mouse State is " + mouseState);
-           updateMousePos(e.getX(),e.getY());
-                       
-           updateLetters();
-           setupViewport();
+           updateMousePos(e.getX(),e.getY());        
+           
+           
+           //updateLetters();
+           //setupViewport();
            //updateMousePos(e.getX(),e.getY());
          }
          @Override public void mouseClicked(MouseEvent e){}
@@ -174,7 +182,8 @@ public class SlerpModelRotate1
          {
            if (mouseState == 0){return;}
            updateMousePos(e.getX(),e.getY());
-           System.out.println("Last mouse pos: " + lastMousePos);
+           //System.out.println("Last mouse pos: " + lastMousePos);
+           if (mouseState == 1) {rotateXY();}  
          }
          
          @Override public void keyTyped(KeyEvent e)
@@ -560,14 +569,31 @@ public class SlerpModelRotate1
    
    private void updateMousePos(double x, double y)
    {
-      //x -= xOffset;
-      //y -= yOffset;
+      x -= xOffset;
+      y -= yOffset;
       double aspectRatio = (double) width / (double) height;
       double alphaHalf = Math.atan2(1,1);
       double pX = (2 * ((x + 0.5) / width) - 1) * Math.tan(alphaHalf) * aspectRatio;
       double pY = (1 - 2 * (y + 0.5) / height) * Math.tan(alphaHalf); 
       lastMousePos = currentMousePos;
-      currentMousePos = new Point3D(10*pX,10*pY,-10);
+      currentMousePos = new Point2D.Double(pX,pY);
+   }
+   
+   private void rotateXY()
+   {
+     if (rotating == true){return;}
+     double xDif = currentMousePos.getX() - lastMousePos.getX();
+     double yDif = currentMousePos.getY() - lastMousePos.getY();
+     
+     double yDeg = 180 * 10 * xDif;
+     double xDeg = 180 * 10 * yDif;
+     
+     int frames = 2 + (int) Math.max(Math.abs(xDif),Math.abs(yDif))*50;
+     //System.out.println("xDeg: " + xDeg + " yDeg: " + yDeg);
+     //System.out.println(frames);
+     
+     rotateLetters(Quaternion.rotateY(yDeg).times(Quaternion.rotateX(xDeg)),frames);
+     
    }
    
    //Update all the letter positions 
