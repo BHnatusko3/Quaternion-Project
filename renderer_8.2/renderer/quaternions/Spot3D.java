@@ -5,7 +5,6 @@
 package renderer.quaternions;
 public class Spot3D {
   
-  /* ADD YOUR CODE HERE */
   private double x;
   private double y;
   private double z;
@@ -18,6 +17,7 @@ public class Spot3D {
     z = 0;
   }
   
+  //Spot at a specified locaion
   public Spot3D(double newX, double newY, double newZ)
   {
     x = newX;
@@ -25,6 +25,7 @@ public class Spot3D {
     z = newZ;
   }
   
+  //Cross-product of the vectors two Spots represent
   public Spot3D crossProduct(Spot3D a, Spot3D b)
   {
     return new Spot3D(a.y * b.z - a.z * b.y,
@@ -32,6 +33,7 @@ public class Spot3D {
                       a.x * b.y - a.y * b.x);
   }
   
+  //Set all 3 coordinates.
   public void set(double newX, double newY, double newZ)
   {
     x = newX;
@@ -39,11 +41,13 @@ public class Spot3D {
     z = newZ;
   }
   
+  //Get distance from the origin, or magnitude.
   public double getDistance()
   {
     return Math.sqrt(x*x + y*y + z*z);
   }
   
+  //Normalize the vector the Spot represents.
   public void normalize()
   {
     double distance = getDistance();
@@ -52,19 +56,31 @@ public class Spot3D {
     z /= distance;
   }
   
+  //Set X only
   public void setX(double newX)
   {
     x = newX;
   }
   
+  //Set Y only
   public void setY(double newY)
   {
     y = newY;
   }
   
+  //Set Z only
   public void setZ(double newZ)
   {
     z = newZ;
   }
+  
+  //Get X
+  public double getX() {return x;}
+  
+  //Get Y
+  public double getY() {return y;}
+    
+  //Get Z
+  public double getZ() {return z;}
   
 }
