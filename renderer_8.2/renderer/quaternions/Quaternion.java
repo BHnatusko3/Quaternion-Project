@@ -231,6 +231,16 @@ public class Quaternion
       return new Quaternion(cZ, 0, 0, sZ);
    }
    
+   //Convert an axis vector and angle double (degrees) to a quaternion.
+   public static Quaternion fromAxisAngle(Vector axis, double angle)
+   {
+   axis.normalize();
+   Double angleHalf = Math.toRadians(angle)/2;
+   Double sinAhalf = Math.sin(angleHalf);  
+   return new Quaternion();
+   
+   }
+   
    //Convert a rotation matrix to a quaternion.
    public Matrix toRotationMatrix()
    {
