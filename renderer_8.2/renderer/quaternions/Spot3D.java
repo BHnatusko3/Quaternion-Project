@@ -17,7 +17,7 @@ public class Spot3D {
     z = 0;
   }
   
-  //Spot at a specified locaion
+  //Spot at a specified location
   public Spot3D(double newX, double newY, double newZ)
   {
     x = newX;

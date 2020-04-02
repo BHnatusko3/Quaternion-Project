@@ -232,12 +232,18 @@ public class Quaternion
    }
    
    //Convert an axis vector and angle double (degrees) to a quaternion.
-   public static Quaternion fromAxisAngle(Vector axis, double angle)
+   public static Quaternion fromAxisAngle(Spot3D axis, double angle)
    {
    axis.normalize();
-   Double angleHalf = Math.toRadians(angle)/2;
-   Double sinAhalf = Math.sin(angleHalf);  
-   return new Quaternion();
+   double angleHalf = Math.toRadians(angle)/2;
+   double sinAhalf = Math.sin(angleHalf);  
+   
+   double newA = Math.cos(angleHalf);
+   double newB = axis.getX() * sinAhalf;
+   double newC = axis.getY() * sinAhalf;
+   double newD = axis.getZ() * sinAhalf;
+   
+   return new Quaternion(newA, newB, newC, newD);
    
    }
    
@@ -355,6 +361,7 @@ public class Quaternion
       return sign + String.format("%.3f", Math.abs(n)) + variables[termNo];
    }
    
+   /*
    public double[] toEulerAnglesXYZ()
    {
       double x = Math.atan2(2*(a*b + c*d),1-2*(b*b + c*c));
@@ -368,8 +375,9 @@ public class Quaternion
       double[] angles = {x,y,z};
       return angles;
    }
+   */
    
-   public double[] toEulerAnglesXYZ2()
+   public double[] toEulerAnglesXYZ()
    {
       double x;
       double y;
