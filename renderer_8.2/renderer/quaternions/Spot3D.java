@@ -26,7 +26,7 @@ public class Spot3D {
   }
   
   //Cross-product of the vectors two Spots represent
-  public Spot3D crossProduct(Spot3D a, Spot3D b)
+  public static Spot3D crossProduct(Spot3D a, Spot3D b)
   {
     return new Spot3D(a.y * b.z - a.z * b.y,
                       a.z * b.x - a.x * b.z,
@@ -82,5 +82,11 @@ public class Spot3D {
     
   //Get Z
   public double getZ() {return z;}
+  
+  //String representation
+  public String toString()
+  {
+    return "(" + x + ", " + y + ", " + z + ")";
+  }
   
 }
