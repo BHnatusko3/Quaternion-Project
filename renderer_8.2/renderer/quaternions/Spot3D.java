@@ -33,6 +33,14 @@ public class Spot3D {
                       a.x * b.y - a.y * b.x);
   }
   
+  //Differences of each coordinate between a and b
+  public static Spot3D difference(Spot3D a, Spot3D b)
+  {
+    return new Spot3D(b.x - a.x,
+                      b.y - a.y,
+                      b.z - a.z);
+  }
+  
   //Set all 3 coordinates.
   public void set(double newX, double newY, double newZ)
   {

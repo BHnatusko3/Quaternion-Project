@@ -231,6 +231,22 @@ public class Quaternion
       return new Quaternion(cZ, 0, 0, sZ);
    }
    
+   //Convert an axis vector and angle double (degrees) to a quaternion.
+   public static Quaternion fromAxisAngle(Spot3D axis, double angle)
+   {
+   axis.normalize();
+   double angleHalf = Math.toRadians(angle)/2;
+   double sinAhalf = Math.sin(angleHalf);  
+   
+   double newA = Math.cos(angleHalf);
+   double newB = axis.getX() * sinAhalf;
+   double newC = axis.getY() * sinAhalf;
+   double newD = axis.getZ() * sinAhalf;
+   
+   return new Quaternion(newA, newB, newC, newD);
+   
+   }
+   
    //Convert a rotation matrix to a quaternion.
    public Matrix toRotationMatrix()
    {
@@ -345,6 +361,9 @@ public class Quaternion
       return sign + String.format("%.3f", Math.abs(n)) + variables[termNo];
    }
    
+   
+   
+
    public double[] toEulerAnglesXYZ()
    {
       double x = Math.atan2(2*(a*b + c*d),1-2*(b*b + c*c));
@@ -352,7 +371,11 @@ public class Quaternion
      
       double y = 0;
       double sinY = 2*(a*c - b*d);
-      if (Math.abs(sinY) >= 1) {y = Math.copySign(Math.PI/2,sinY);}
+      if (Math.abs(sinY) >= 1) 
+      {
+        System.out.print("Sign copying.");
+        y = Math.copySign(Math.PI/2,sinY);
+      }
       else {y = Math.asin(sinY);}
       
       double[] angles = {x,y,z};
@@ -390,6 +413,7 @@ public class Quaternion
       }
       return new double[] {x,y,z};
    }
+   
    
    public double[] toEulerAnglesDegXYZ()
    {

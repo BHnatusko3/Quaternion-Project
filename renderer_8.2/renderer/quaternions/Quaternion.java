@@ -361,7 +361,9 @@ public class Quaternion
       return sign + String.format("%.3f", Math.abs(n)) + variables[termNo];
    }
    
-   /*
+   
+   
+
    public double[] toEulerAnglesXYZ()
    {
       double x = Math.atan2(2*(a*b + c*d),1-2*(b*b + c*c));
@@ -370,14 +372,14 @@ public class Quaternion
       double y = 0;
       double sinY = 2*(a*c - b*d);
       if (Math.abs(sinY) >= 1) {y = Math.copySign(Math.PI/2,sinY);}
+      
       else {y = Math.asin(sinY);}
       
       double[] angles = {x,y,z};
       return angles;
    }
-   */
    
-   public double[] toEulerAnglesXYZ()
+   public double[] toEulerAnglesXYZ2()
    {
       double x;
       double y;
@@ -408,6 +410,7 @@ public class Quaternion
       }
       return new double[] {x,y,z};
    }
+   
    
    public double[] toEulerAnglesDegXYZ()
    {
