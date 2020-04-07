@@ -20,6 +20,8 @@ import java.awt.event.*;
 import javax.swing.SwingUtilities;
 import java.awt.geom.Point2D;
 import java.awt.Point;
+
+import java.io.File;
 //import javafx.geometry.*;
 /**
 
@@ -115,7 +117,8 @@ public class SlerpModelRotate2
 
 
       // Change this code to build the appropriate scene graph.
-      scene.addPosition(new Position( new P() ));
+      //scene.addPosition(new Position( new P() ));
+      scene.addPosition(new Position( new ObjSimpleModel(new File("assets/cessna.obj")) ));
       ModelShading.setRandomColor(scene.getPosition(1).model);
       
       scene.getPosition(1).matrix = Matrix.translate(
