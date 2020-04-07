@@ -61,7 +61,7 @@ public class Spot3D {
     return a.x * b.x + a.y * b.y + a.z * b.z;
   }
   
-  //Provide the angle, in radiance, between the vectors two Spot3Ds represent.
+  //Provide the angle, in radians, between the vectors two Spot3Ds represent.
   public static double angleBetween(Spot3D a, Spot3D b)
   {
     double cosAngle = dotProduct(a,b)/(a.getDistance() * b.getDistance());

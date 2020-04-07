@@ -68,7 +68,7 @@ public class SlerpModelRotate2
    // Define initial dimensions for a FrameBuffer.
    public int width  = 600;
    public int height = 600;
-   public int fps = 60;
+   public int fps = 80;
    
    private int yOffset = 31; //Without taking this into account, the top pixel is at y = 31. 
    private int xOffset = 8; //Without taking this into account, the leftmost pixel is at x = 8.
@@ -588,17 +588,25 @@ public class SlerpModelRotate2
    private void rotateXY()
    {
      if (rotating == true){return;}
+     
      double dis = Spot3D.difference(lastPos,currentPos).getDistance();
      
-     int frames = 2 + (int) dis * 50;
+     Spot3D axis = Spot3D.crossProduct(lastPos,currentPos);
+     double angle = Spot3D.angleBetween(lastPos,currentPos);
+     angle = Math.toDegrees(angle);
+     //System.out.println(angle);
+     double angleFactor = 5;
+     
+     int frames = 2 + (int) angle;
      //System.out.println("xDeg: " + xDeg + " yDeg: " + yDeg);
      //System.out.println(frames);
      
-     rotateLetters(Quaternion.rotateY(yDeg).times(Quaternion.rotateX(xDeg)),frames);   
+     rotateLetters(Quaternion.fromAxisAngle(axis,angleFactor * angle),frames);   
    }
    
    private void rotateZ()
    {
+     /*
      if (rotating == true){return;}
      double ang1 = Math.atan2(lastMousePos.getY(),lastMousePos.getX());
      double ang2 = Math.atan2(currentMousePos.getY(),currentMousePos.getX());
@@ -609,7 +617,8 @@ public class SlerpModelRotate2
      //System.out.println("xDeg: " + xDeg + " yDeg: " + yDeg);
      //System.out.println(frames);
      
-     rotateLetters(Quaternion.rotateZ(angDif),frames);        
+     rotateLetters(Quaternion.rotateZ(angDif),frames);
+     */
    }
    
    //Update all the letter positions 
@@ -633,8 +642,7 @@ public class SlerpModelRotate2
  
    private static void print_help_message()
    {
-      System.out.println("Left click and drag horizontally to rotate along the Y axis.");
-      System.out.println("Left click and drag vertically to rotate along the X axis.");
+      System.out.println("Left click and drag to rotate.");
       System.out.println("Right click and drag, preferrably in a circle, to rotate along the Z axis.");
       System.out.println("Use the 'd' key to toggle debugging information on and off.");
       System.out.println("Use the '/' key to cycle between PNW, P, N, W.");
