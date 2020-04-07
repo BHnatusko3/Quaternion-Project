@@ -55,6 +55,19 @@ public class Spot3D {
     return Math.sqrt(x*x + y*y + z*z);
   }
   
+  //Get distance from the origin, or magnitude.
+  public static double dotProduct(Spot3D a, Spot3D b)
+  {
+    return a.x * b.x + a.y * b.y + a.z * b.z;
+  }
+  
+  //Provide the angle, in radiance, between the vectors two Spot3Ds represent.
+  public static double angleBetween(Spot3D a, Spot3D b)
+  {
+    double cosAngle = dotProduct(a,b)/(a.getDistance() * b.getDistance());
+    return Math.acos(cosAngle);
+  }
+  
   //Normalize the vector the Spot represents.
   public void normalize()
   {
