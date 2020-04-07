@@ -187,7 +187,10 @@ public class SlerpModelRotate1
          {
             // update the scene
             //System.out.println( e );
-            if (currentStep < stepCount) {return;}
+            if (currentStep < currentSlerp.getSteps()) 
+            {
+              return;
+            }
             char c = e.getKeyChar();
             if ('h' == c)
             {
@@ -381,6 +384,7 @@ public class SlerpModelRotate1
             {
                zTranslation += 0.1;
             }
+            /*
             else if ('u' == c)
             {
                rotateLetters(Quaternion.rotateX(-5),stepCount);
@@ -405,6 +409,7 @@ public class SlerpModelRotate1
             {
                rotateLetters(Quaternion.rotateZ(5),stepCount);
             }
+            */
             updateLetters();
             
             //System.out.println("Rotation: " + rotation);
@@ -587,7 +592,7 @@ public class SlerpModelRotate1
      double yDif = currentMousePos.getY() - lastMousePos.getY();
      
      double yDeg = 180 * 10 * xDif;
-     double xDeg = 180 * 10 * yDif;
+     double xDeg = -1 * 180 * 10 * yDif;
      
      int frames = 2 + (int) Math.max(Math.abs(xDif),Math.abs(yDif))*50;
      //System.out.println("xDeg: " + xDeg + " yDeg: " + yDeg);
@@ -632,11 +637,16 @@ public class SlerpModelRotate1
  
    private static void print_help_message()
    {
+      System.out.println("Left click and drag horizontally to rotate along the Y axis.");
+      System.out.println("Left click and drag vertically to rotate along the X axis.");
+      System.out.println("Right click and drag, preferrably in a circle, to rotate along the Z axis.");
       System.out.println("Use the 'd' key to toggle debugging information on and off.");
       System.out.println("Use the '/' key to cycle between PNW, P, N, W.");
+      /*
       System.out.println("Use the 'p' key to toggle between parallel and orthographic projection.");
       System.out.println("Use the x/X, y/Y, z/Z, keys to translate a model along the x, y, z axes.");
       System.out.println("Use the u/U, v/V, w/W, keys to rotate a model around the x, y, z axes.");
+      */
       System.out.println("Use the s/S keys to scale the size of a model.");
       System.out.println("Use the 'c' key to change a model's random solid color.");
       System.out.println("Use the 'C' key to randomly change a model's colors.");
