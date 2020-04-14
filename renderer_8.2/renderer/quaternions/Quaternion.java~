@@ -371,11 +371,8 @@ public class Quaternion
      
       double y = 0;
       double sinY = 2*(a*c - b*d);
-      if (Math.abs(sinY) >= 1) 
-      {
-        System.out.print("Sign copying.");
-        y = Math.copySign(Math.PI/2,sinY);
-      }
+      if (Math.abs(sinY) >= 1) {y = Math.copySign(Math.PI/2,sinY);}
+      
       else {y = Math.asin(sinY);}
       
       double[] angles = {x,y,z};
