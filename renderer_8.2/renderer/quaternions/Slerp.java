@@ -77,6 +77,26 @@ public class Slerp
       }    
    }
    
+   //Have the Slerp continue to another Quaternion.
+   public void continueTo(Quaternion q, int s)
+   {
+     Slerp newSlerp = new Slerp(qList[steps - 1],q,s);
+     //1 is subtracted since the current slerp ends where the new slerp begins.
+     int newSteps = steps + s - 1; 
+     Quaternion[] newQList = new Quaternion[newSteps];
+     for (int i = 0; i < steps; i++)
+     {
+       newQList[i] = qList[i];
+     }
+     //Variable j starts at 1 given the overlapping mentioned in the previous comment.
+     for (int j = 1; j < s; j++)
+     {
+       newQList[steps + j - 1] = newSlerp.qList[j];
+     }
+     qList = newQList;
+     steps = newSteps;  
+   }
+   
    public Quaternion get(int i)
    {
       if (i >= 0 && i < qList.length) {return qList[i];}
@@ -85,4 +105,15 @@ public class Slerp
    
    public int getSteps()
    {return steps;}
+   
+   public String toString()
+   {
+     String s = "Slerp containing the following: ";
+     for (int i = 0; i < steps; i++)
+     {
+       s += "\n" + qList[i];
+     }
+     s += "\n(end slerp)";
+     return s;
+   }  
 }
