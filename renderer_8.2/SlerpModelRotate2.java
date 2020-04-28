@@ -1,11 +1,12 @@
 /*
-Course: CS 45500
+Course: CS 42000
       Name: Bruno Hnatusko III
       Email: bhnatusk@pnw.edu
-      Assignment: 5
 
-      A program for applying 3D transformations to a
-      P, N, and W collectively and individually.
+      A program that rotates a 3D model.
+      Clicking and dragging projects a mouse onto
+      a hypothetical unit sphere around the origin,
+      rotating that sphere and the model.
 */
 
 import renderer.scene.*;

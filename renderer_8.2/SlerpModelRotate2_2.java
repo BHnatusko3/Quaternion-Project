@@ -27,7 +27,7 @@ import java.io.File;
 /**
 
 */
-public class SlerpModelRotate2_1
+public class SlerpModelRotate2_2
 {
    //private FrameBufferFrame fbf; // The event handlers need
    private Scene scene;          // access to these fields.
@@ -81,7 +81,7 @@ public class SlerpModelRotate2_1
       This constructor instantiates the Scene object
       and initializes it with appropriate geometry.
    */
-   public SlerpModelRotate2_1()
+   public SlerpModelRotate2_2()
    {
     
 
@@ -181,7 +181,6 @@ public class SlerpModelRotate2_1
          @Override public void mouseDragged(MouseEvent e)
          {
            if (mouseState == 0){return;}
-           if (rotating){return;} //Ensures the program will catch up.
            updatePos(e.getX(),e.getY());
            //System.out.println("Last mouse pos: " + lastMousePos);
            if (mouseState == 1) {rotateXY();}  
@@ -557,7 +556,7 @@ public class SlerpModelRotate2_1
       // the main() thread) and the very first ComponentEvent
       // (running in the EDT).
       javax.swing.SwingUtilities.invokeLater(
-                                             () -> {new SlerpModelRotate2_1();}
+                                             () -> {new SlerpModelRotate2_2();}
       );
    }//main()
    
