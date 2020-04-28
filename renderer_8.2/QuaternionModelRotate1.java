@@ -5,7 +5,7 @@ Course: CS 45500
       Assignment: 5
 
       A program for applying 3D transformations to a
-      P, N, and W collectively and individually.
+      3D Letter P, using quaternions.
 */
 
 import renderer.scene.*;
