@@ -27,3 +27,21 @@ two quaternions instead. Slerp is from m to n.
 -Slerp Tester 4: Functions like the previous class, but with
 three quaternions, using the continue function to continue Slerp
 mn to quaternion o.
+--Applications
+-QuaternionModelRotate1: Derived from my Computer Graphics final project. 
+Does what the project does, but only with a P, and with Quaternions.
+-QuaternionModelRotate2: A version of the previous program that uses slerps for 
+smoother rotation.
+-SlerpModelRotate1: Rotates a Cessna model. 
+Left click and drag: Vertical X and Horizontal Y rotation
+Right click and drag: Z rotation
+-SlerpModelRotate1_1: Version of the previous that does not update mouse
+position if the model is rotating.
+-SlerpModelRotate2: Rotates a Cessna model. 
+Left click and drag: Project cursor onto a unit sphere around the model.
+Rotates the model as if the sphere was physically rotated by the mouse.
+-SlerpModelRotate2_1: Version of the previous that does not update mouse
+position if the model is rotating.
+-SlerpModelRotate2_2: Work in progress.
+
+
