@@ -1,3 +1,6 @@
+/* Tests the slerp class with two quaternions
+ * made from Standard Input.
+ */ 
 import renderer.quaternions.*;
 import renderer.scene.*;
 import java.util.Arrays;
@@ -7,7 +10,6 @@ public class Slerp_Tester_3
    
    public static void main(String[] args)
    {
-      Matrix m = Matrix.identity();
       Scanner in = new Scanner(System.in);
       System.out.print("Enter value mA.");
       double mA = in.nextDouble();

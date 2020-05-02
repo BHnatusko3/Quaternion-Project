@@ -1,3 +1,4 @@
+//Tests the original Quaternion functions with premade Quaternions.
 import renderer.quaternions.*;
 import renderer.scene.*;
 public class QuaternionTester2

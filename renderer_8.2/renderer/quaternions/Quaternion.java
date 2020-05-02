@@ -41,6 +41,10 @@ public class Quaternion
       this.d = q.d;
    }
    
+   //Identity quaternion. (Made after I finished tests with matrices)
+   public static Quaternion identity()
+   {return new Quaternion (1,0,0,0);}
+   
    //Conjugate, where imaginary numbers are negated
    public Quaternion conjugate()
    {
@@ -113,6 +117,7 @@ public class Quaternion
    */   
    public static Quaternion fromRotationMatrix(Matrix m)
    {
+     //Get matrix positions
       double m11 = m.get(1,1);
       double m12 = m.get(1,2);
       double m13 = m.get(1,3);
@@ -125,44 +130,48 @@ public class Quaternion
       double m32 = m.get(3,2);
       double m33 = m.get(3,3);
     
+     //Declare new quaternion coefficients
       double newA;
       double newB;
       double newC;
       double newD;
       
-      double t = m11 + m22 + m33;
-      double s;
       
-      if (t > 0)
+      double t = m11 + m22 + m33; //Test number.
+      double s; //Influences coefficients
+      
+      //Depending on
+      if (t > 0) //The matrix diagonal sum is positive.
       {
-         System.out.println("Route 1");
          s = 2.0 * Math.sqrt(t + 1.0);
          newA = s/4.0;
          newB = (m32 - m23)/s;
          newC = (m13 - m31)/s;
          newD = (m21 - m12)/s;
       }
+      //m11 is the greatest of the diagonals.
       else if ((m11 > m22) && (m11 > m33))
       {
-          System.out.println("Route 2");
          s = 2.0 * Math.sqrt(1.0 + m11 - m22 - m33);
          newA = (m32 - m23)/s;
          newB = s/4.0;
          newC = (m12 + m21)/s;
          newD = (m13 + m31)/s;
       }
+      //m22 is the greatest of the diagonals.
       else if (m22 > m33)
       {
-          System.out.println("Route 3");
          s = 2.0 * Math.sqrt(1.0 - m11 + m22 - m33);
          newA = (m13 - m31)/s;
          newB = (m12 + m21)/s;
          newC = s/4.0;
          newD = (m23 + m32)/s;
       }
+      /*m33 is the greatest of the diagonals,
+       * or equal to others.
+       */
       else
       {
-          System.out.println("Route 4");
          s = 2.0 * Math.sqrt(1.0 - m11 - m22 + m33);
          newA = (m21 - m12)/s;
          newB = (m13 + m31)/s;
@@ -179,11 +188,12 @@ public class Quaternion
    
    public static Quaternion fromEulerAnglesXYZ(double x,double y,double z)
    {
-      
+      //Convert angles from degrees to radians.
       double radX = Math.toRadians(x);
       double radY = Math.toRadians(y);
       double radZ = Math.toRadians(z);
       
+      //Sines and cosines of half angles
       double cX = Math.cos(radX/2);
       double sX = Math.sin(radX/2);
       double cY = Math.cos(radY/2);
@@ -191,6 +201,7 @@ public class Quaternion
       double cZ = Math.cos(radZ/2);
       double sZ = Math.sin(radZ/2);
       
+      //Form the quaternion.
       double newA = cX * cY * cZ + sX * sY * sZ;
       double newB = sX * cY * cZ - cX * sY * sZ;
       double newC = sX * cY * sZ + cX * sY * cZ;
@@ -253,13 +264,18 @@ public class Quaternion
    //Convert a rotation matrix to a quaternion.
    public Matrix toRotationMatrix()
    {
+      //Influences the matrix elements.
       double s = Math.pow(this.magnitude(),-2);
       double twoS = 2*s;
       
+      /* Squares of coefficients other than a. 
+       * (a^2 is not necessary) 
+       */ 
       double b2 = b*b;
       double c2 = c*c;
       double d2 = d*d;
       
+      // Products of two coefficients 
       double ab = a*b;
       double ac = a*c;
       double ad = a*d;
@@ -273,6 +289,7 @@ public class Quaternion
       Vector v3 = new Vector(twoS * (bd + ac), twoS * (cd - ab), 1 - twoS * (b2 + c2), 0);
       Vector v4 = new Vector(0, 0, 0, 1);
       
+      //Build the matrix.
       return Matrix.build(v1,v2,v3,v4);
    }
    
@@ -282,11 +299,14 @@ public class Quaternion
       if (this.magnitude() != 1) {return this.unitQuaternion().toRotationMatrix();}
       //double s = Math.pow(this.magnitude(),-2);
       //double twoS = 2*s;
-      
+ 
+      /* Squares of coefficients other than a. 
+       * (a^2 is not necessary) 
+       */ 
       double b2 = b*b;
       double c2 = c*c;
       double d2 = d*d;
-      
+      // Products of two coefficients 
       double ab = a*b;
       double ac = a*c;
       double ad = a*d;
@@ -300,6 +320,7 @@ public class Quaternion
       Vector v3 = new Vector(2 * (bd + ac), 2 * (cd - ab), 1 - 2 * (b2 + c2), 0);
       Vector v4 = new Vector(0, 0, 0, 1);
       
+       //Build the matrix.
       return Matrix.build(v1,v2,v3,v4);
    }
    
@@ -360,9 +381,7 @@ public class Quaternion
       return sign + String.format("%.3f", Math.abs(n)) + variables[termNo];
    }
    
-   
-   
-
+   //An attempt to convert a quaternion to Euler Angles in radians.
    public double[] toEulerAnglesXYZ()
    {
       double x = Math.atan2(2*(a*b + c*d),1-2*(b*b + c*c));
@@ -378,6 +397,7 @@ public class Quaternion
       return angles;
    }
    
+   //Another attempt of the previous function. I never figured out which was accurate.
    public double[] toEulerAnglesXYZ2()
    {
       double x;
@@ -410,7 +430,7 @@ public class Quaternion
       return new double[] {x,y,z};
    }
    
-   
+   //To Euler Angles in degrees.
    public double[] toEulerAnglesDegXYZ()
    {
       double[] angles = this.toEulerAnglesXYZ();
@@ -421,7 +441,7 @@ public class Quaternion
       return angles;
    }
    
-   
+   //Normalize the quaternion so magnitude becomes 1.
    public void normalize()
    {
       double m = this.magnitude();

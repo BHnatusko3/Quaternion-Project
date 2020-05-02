@@ -1,3 +1,4 @@
+//Tests the Quaternion toString function, ensuring signs are accurately portrayed.
 import renderer.quaternions.*;
 public class QuaternionTester
 {

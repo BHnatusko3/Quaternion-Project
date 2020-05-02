@@ -198,6 +198,7 @@ public class Quaternion
       return new Quaternion(newA, newB, newC, newD);
    }
    
+   //A quaternion for rotating around the X axis by x degrees.
    public static Quaternion rotateX(double x)
    {
       
@@ -209,6 +210,7 @@ public class Quaternion
       return new Quaternion(cX, sX, 0, 0);
    }
    
+   //A quaternion for rotating around the Y axis by y degrees.
    public static Quaternion rotateY(double y)
    {
       
@@ -220,6 +222,7 @@ public class Quaternion
       return new Quaternion(cY, 0, sY, 0);
    }
    
+    //A quaternion for rotating around the Z axis by z degrees.
    public static Quaternion rotateZ(double z)
    {
 
@@ -310,31 +313,27 @@ public class Quaternion
     * a + bi + cj + dk
     * Numbers are rounded to 3 decimal places.  
     */
-   
    public static double dotProduct(Quaternion O, Quaternion P)
    {
       return (O.a * P.a + O.b * P.b + O.c * P.c + O.d * P.d);
    }
    
+   //Describe a quaternion in a string.
    public String toString()
    {
       String s = "";
       double[] coefficients = {a,b,c,d};
+      String[] letters = {"","i","j","k"};
+      s += String.format("%.3f", a);
       
-      s += equationTerm(a, 0, true);
-      
-      int a = 1;
-      for (a = a; a < 4 && s.length() == 0; a++)
+      for (int i = 1; i < 4; i++)
       {
-         s += equationTerm(coefficients[a],a,true);
+        if (coefficients[i] < 0) {s += " - ";}
+        else {s += " + ";}
+        s +=  String.format("%.3f", Math.abs(coefficients[i]));
+        s += letters[i];
       }
-      for (a = a; a < 4 && s.length() > 0; a++)
-      {
-         s += operatorString(coefficients[a]);
-         s += equationTerm(coefficients[a],a,false);
-      }
-      if (s.length() > 0) {return s;}
-      else {return "0";}
+      return s;
    }
    
    /* Used by the toString function.
