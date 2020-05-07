@@ -248,17 +248,18 @@ public class Quaternion
    //Convert an axis vector and angle double (degrees) to a quaternion.
    public static Quaternion fromAxisAngle(Spot3D axis, double angle)
    {
-   axis.normalize();
-   double angleHalf = Math.toRadians(angle)/2;
-   double sinAhalf = Math.sin(angleHalf);  
-   
-   double newA = Math.cos(angleHalf);
-   double newB = axis.getX() * sinAhalf;
-   double newC = axis.getY() * sinAhalf;
-   double newD = axis.getZ() * sinAhalf;
-   
-   return new Quaternion(newA, newB, newC, newD);
-   
+     if (angle == 0) {return identity();}//Edge case where the angle is nothing.
+     axis.normalize();
+     double angleHalf = Math.toRadians(angle)/2;
+     double sinAhalf = Math.sin(angleHalf);  
+     
+     double newA = Math.cos(angleHalf);
+     double newB = axis.getX() * sinAhalf;
+     double newC = axis.getY() * sinAhalf;
+     double newD = axis.getZ() * sinAhalf;
+     
+     return new Quaternion(newA, newB, newC, newD);
+     
    }
    
    //Convert a rotation matrix to a quaternion.

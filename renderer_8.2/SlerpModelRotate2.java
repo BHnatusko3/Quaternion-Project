@@ -183,8 +183,7 @@ public class SlerpModelRotate2
            if (mouseState == 0){return;}
            updatePos(e.getX(),e.getY());
            //System.out.println("Last mouse pos: " + lastMousePos);
-           if (mouseState == 1) {rotateXY();}  
-           else if (mouseState == 2) {rotateZ();}
+           if (mouseState == 1) {rotate();}  
          }
          
          @Override public void keyTyped(KeyEvent e)
@@ -589,7 +588,7 @@ public class SlerpModelRotate2
       currentPos = new Spot3D(pX,pY,pZ);
    }
    
-   private void rotateXY()
+   private void rotate()
    {
      if (rotating == true){return;}
      
@@ -606,23 +605,6 @@ public class SlerpModelRotate2
      //System.out.println(frames);
      
      rotateLetters(Quaternion.fromAxisAngle(axis,angleFactor * angle),frames);   
-   }
-   
-   private void rotateZ()
-   {
-     /*
-     if (rotating == true){return;}
-     double ang1 = Math.atan2(lastMousePos.getY(),lastMousePos.getX());
-     double ang2 = Math.atan2(currentMousePos.getY(),currentMousePos.getX());
-       
-     double angDif = 4 * Math.toDegrees(ang2 - ang1);
-    
-     int frames = 2 + (int) angDif/90;
-     //System.out.println("xDeg: " + xDeg + " yDeg: " + yDeg);
-     //System.out.println(frames);
-     
-     rotateLetters(Quaternion.rotateZ(angDif),frames);
-     */
    }
    
    //Update all the letter positions 

@@ -115,20 +115,26 @@ public class SlerpModelRotate2_2
       ModelShading.setColor(wall, Color.darkGray.darker());
       scene.addPosition(new Position(wall));
       scene.getPosition(0).matrix = Matrix.translate(0, 0, distanceToCamera);
+      
+      //
+      Model circle  = new Circle(3);
+      ModelShading.setColor(circle, Color.red);
+      scene.addPosition(new Position(circle));
+      scene.getPosition(1).matrix = Matrix.translate(0, 0, distanceToCamera);
 
 
       // Change this code to build the appropriate scene graph.
       //scene.addPosition(new Position( new P() ));
       scene.addPosition(new Position( new ObjSimpleModel(new File("assets/cessna.obj")) ));
-      ModelShading.setRandomColor(scene.getPosition(1).model);
+      ModelShading.setRandomColor(scene.getPosition(2).model);
       
-      scene.getPosition(1).matrix = Matrix.translate(
+      scene.getPosition(2).matrix = Matrix.translate(
                                                xTranslation,
                                                yTranslation,
                                                zTranslation);
 
       
-      updateLetters();
+      updateModel();
       
       // Create an AnimationFrame containing a FrameBuffer
       // with the given dimensions.
@@ -148,7 +154,7 @@ public class SlerpModelRotate2_2
             }
             else {rotating = false;}
    
-            updateLetters();
+            updateModel();
             // Render again.
             FrameBuffer fb = this.fbp.getFrameBuffer();
             fb.clearFB(Color.black);
@@ -174,17 +180,29 @@ public class SlerpModelRotate2_2
            else if (SwingUtilities.isRightMouseButton(e)) {mouseState = 2;}
              
            System.out.println("Mouse State is " + mouseState);
-           updatePos(e.getX(),e.getY());        
+           
+           lastPos = getPos(e.getX(),e.getY());     
+           currentPos = lastPos;    
            //System.out.println(e.getY() + " " + currentMousePos.getY());
          }
          @Override public void mouseClicked(MouseEvent e){}
          @Override public void mouseDragged(MouseEvent e)
          {
            if (mouseState == 0){return;}
-           updatePos(e.getX(),e.getY());
+           Spot3D newPos = getPos(e.getX(),e.getY());
+           if (rotating)
+           {
+             currentPos = newPos;
+           }
+           else
+           {
+             lastPos = currentPos;
+             currentPos = newPos;
+             rotate();
+           }
            //System.out.println("Last mouse pos: " + lastMousePos);
-           if (mouseState == 1) {rotateXY();}  
-           else if (mouseState == 2) {rotateZ();}
+           //if (mouseState == 1) {rotateXY();}  
+           //else if (mouseState == 2) {rotateZ();}
          }
          
          @Override public void keyTyped(KeyEvent e)
@@ -220,7 +238,7 @@ public class SlerpModelRotate2_2
              else if (1 == modelIndex)
              {
              System.out.println("Working on P.");
-             currentPosition = scene.getPosition(1);
+             currentPosition = scene.getPosition(2);
              }
              }
              */
@@ -301,32 +319,32 @@ public class SlerpModelRotate2_2
             {
                // Change the solid random color of the current model.
                
-               ModelShading.setRandomColor(scene.getPosition(1).model);
+               ModelShading.setRandomColor(scene.getPosition(2).model);
             }
             else if ('C' == c)
             {
                // Change each color in the current model to a random color.
-               ModelShading.setRandomColors(scene.getPosition(1).model);
+               ModelShading.setRandomColors(scene.getPosition(2).model);
             }
             else if ('e' == c && e.isAltDown())
             {
                // Change the random color of each vertex of the current model.
                
-               ModelShading.setRandomVertexColors(scene.getPosition(1).model);
+               ModelShading.setRandomVertexColors(scene.getPosition(2).model);
                
             }
             else if ('e' == c)
             {
                // Change the solid random color of each edge of the current model.
                
-               ModelShading.setRandomLineSegmentColors(scene.getPosition(1).model);
+               ModelShading.setRandomLineSegmentColors(scene.getPosition(2).model);
                
             }
             else if ('E' == c)
             {
                // Change the random color of each end of each edge of the current model.
                
-               ModelShading.setRainbowLineSegmentColors(scene.getPosition(1).model);
+               ModelShading.setRainbowLineSegmentColors(scene.getPosition(2).model);
                
             }
             else if ('f' == c)
@@ -391,30 +409,30 @@ public class SlerpModelRotate2_2
             /*
             else if ('u' == c)
             {
-               rotateLetters(Quaternion.rotateX(-5),stepCount);
+               rotateModel(Quaternion.rotateX(-5),stepCount);
             }
             else if ('U' == c)
             {       
-               rotateLetters(Quaternion.rotateX(5),stepCount);
+               rotateModel(Quaternion.rotateX(5),stepCount);
             }
             else if ('v' == c)
             {
-               rotateLetters(Quaternion.rotateY(-5),stepCount);
+               rotateModel(Quaternion.rotateY(-5),stepCount);
             }
             else if ('V' == c)
             {
-               rotateLetters(Quaternion.rotateY(5),stepCount);
+               rotateModel(Quaternion.rotateY(5),stepCount);
             }
             else if ('w' == c)
             {
-               rotateLetters(Quaternion.rotateZ(-5),stepCount);
+               rotateModel(Quaternion.rotateZ(-5),stepCount);
             }
             else if ('W' == c)
             {
-               rotateLetters(Quaternion.rotateZ(5),stepCount);
+               rotateModel(Quaternion.rotateZ(5),stepCount);
             }
             */
-            updateLetters();
+            updateModel();
             
             //System.out.println("Rotation: " + rotation);
             
@@ -561,7 +579,7 @@ public class SlerpModelRotate2_2
    }//main()
    
    
-   private void rotateLetters(Quaternion q, int steps)
+   private void rotateModel(Quaternion q, int steps)
    {
      
       if (steps > 0)
@@ -573,60 +591,40 @@ public class SlerpModelRotate2_2
  
    }
    
-   private void updatePos(double x, double y)
+   //Convert x and y screen positions to a 3D point.
+   private Spot3D getPos(double x, double y)
    {
       x -= xOffset;
       y -= yOffset;
 
       double pX = 2 * (x/width - 0.5); 
-      double pY = 2 * (0.5 - y/(height  )); 
-      double pZ;
+      double pY = 2 * (0.5 - y/height); 
+      double pZ; //The point is projected onto a sphere
       double t = 1 - (pX * pX) - (pY * pY);
-      if (t < 0) {pZ = 0;}
+      if (t < 0) {pZ = 0;}//Beyond the sphere. Means Z axis rotation only.
       else {pZ = Math.sqrt(t);}      
-      
-      lastPos = currentPos;
-      currentPos = new Spot3D(pX,pY,pZ);
+      return new Spot3D(pX,pY,pZ);
    }
    
-   private void rotateXY()
+   private void rotate()
    {
      if (rotating == true){return;}
-     
-     double dis = Spot3D.difference(lastPos,currentPos).getDistance();
-     
+     //Get axis and angle
      Spot3D axis = Spot3D.crossProduct(lastPos,currentPos);
      double angle = Spot3D.angleBetween(lastPos,currentPos);
      angle = Math.toDegrees(angle);
-     //System.out.println(angle);
+     //An angle of 0 is possible and does nothing but break the program.
+     if (angle == 0) {return;}
      double angleFactor = 5;
      
+     //Determine number of steps the slerp will have later.
      int frames = 2 + (int) angle;
-     //System.out.println("xDeg: " + xDeg + " yDeg: " + yDeg);
-     //System.out.println(frames);
      
-     rotateLetters(Quaternion.fromAxisAngle(axis,angleFactor * angle),frames);   
-   }
-   
-   private void rotateZ()
-   {
-     /*
-     if (rotating == true){return;}
-     double ang1 = Math.atan2(lastMousePos.getY(),lastMousePos.getX());
-     double ang2 = Math.atan2(currentMousePos.getY(),currentMousePos.getX());
-       
-     double angDif = 4 * Math.toDegrees(ang2 - ang1);
-    
-     int frames = 2 + (int) angDif/90;
-     //System.out.println("xDeg: " + xDeg + " yDeg: " + yDeg);
-     //System.out.println(frames);
-     
-     rotateLetters(Quaternion.rotateZ(angDif),frames);
-     */
+     rotateModel(Quaternion.fromAxisAngle(axis,angleFactor * angle),frames);   
    }
    
    //Update all the letter positions 
-   private void updateLetters()
+   private void updateModel()
    {
       //System.out.println("Updating letters.");
       //Create the matrix of the entire scene.
@@ -639,7 +637,7 @@ public class SlerpModelRotate2_2
       
       basePosMtx.mult(rotation.toRotationMatrix());         
       basePosMtx.mult(Matrix.scale(scale));
-      scene.getPosition(1).matrix = new Matrix(basePosMtx);
+      scene.getPosition(2).matrix = new Matrix(basePosMtx);
       setupViewport();
    }
    
